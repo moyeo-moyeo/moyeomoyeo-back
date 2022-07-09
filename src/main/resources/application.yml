@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    username: moyeo
+    password: moyeo12!
+    url: jdbc:mysql:/127.0.0.3306/moyeo
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql:
