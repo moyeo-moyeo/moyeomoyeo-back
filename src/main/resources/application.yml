@@ -2,7 +2,8 @@ spring:
   datasource:
     username: moyeo
     password: moyeo12!
-    url: jdbc:mysql:/127.0.0.3306/moyeo
+    url: jdbc:mysql://127.0.0.1:3307/moyeo
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: create
