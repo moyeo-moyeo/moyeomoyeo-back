@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -33,6 +36,12 @@ public class Member  {
         this.password = password;
     }
 
+    public List<String> getRoleList(){
+        if(this.role.length()>0)
+            return Arrays.asList(role.split(","));
+
+        return new ArrayList<>();
+    }
     public Member(String loginId, String password, String username, String nickname, String birthDate, String phoneNumber) {
         this.loginId = loginId;
         this.password = password;
