@@ -25,12 +25,12 @@ public class MemberController {
 
     @GetMapping("/loginid/duplicate")
     public ResponseEntity<MemberDuplicateResponse> isDuplicateLoginId(@RequestParam(name = "loginid") String loginId) {
-        return new ResponseEntity<>(memberService.isLoginId(loginId),HttpStatus.OK);
+        return new ResponseEntity<>(memberService.isLoginId(loginId), HttpStatus.OK);
     }
 
     @GetMapping("/nickname/duplicate")
     public ResponseEntity<MemberDuplicateResponse> isDuplicateNickname(@RequestParam(name = "nickname") String nickname) {
-        return new ResponseEntity<>(memberService.isLoginId(nickname),HttpStatus.OK);
+        return new ResponseEntity<>(memberService.isLoginId(nickname), HttpStatus.OK);
     }
 
 }
