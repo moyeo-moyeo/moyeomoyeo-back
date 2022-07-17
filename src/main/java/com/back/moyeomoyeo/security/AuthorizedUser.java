@@ -13,7 +13,7 @@ public class AuthorizedUser extends User {
 
 
     public AuthorizedUser(Member member) {
-        super(member.getUsername(), member.getPassword(), AuthorityUtils.createAuthorityList(member.getRoleList().toString()));
+        super(member.getLoginId(), member.getPassword(), AuthorityUtils.createAuthorityList(member.getRoleList().toString()));
         this.member= member;
     }
 
