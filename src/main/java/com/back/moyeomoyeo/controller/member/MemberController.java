@@ -35,12 +35,13 @@ public class MemberController {
         return new ResponseEntity<>(memberService.isLoginId(nickname), HttpStatus.OK);
     }
 
-    @GetMapping("/")
+    @GetMapping("/get")
     public  String getLoginId(){
         AuthorizedUser principal = (AuthorizedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         return principal.getUsername();
 
     }
+
 
 }
