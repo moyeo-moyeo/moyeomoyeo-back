@@ -32,7 +32,15 @@ public class MemberController {
 
     @GetMapping("/nickname/duplicate")
     public ResponseEntity<MemberDuplicateResponse> isDuplicateNickname(@RequestParam(name = "nickname") String nickname) {
-        return new ResponseEntity<>(memberService.isLoginId(nickname), HttpStatus.OK);
+        return new ResponseEntity<>(memberService.isNickname(nickname), HttpStatus.OK);
+    }
+
+    @GetMapping("/")
+    public  String getLoginId(){
+        AuthorizedUser principal = (AuthorizedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return principal.getUsername();
+
     }
 
     @GetMapping("/")
