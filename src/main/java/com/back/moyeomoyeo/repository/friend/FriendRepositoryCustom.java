@@ -1,5 +1,6 @@
 package com.back.moyeomoyeo.repository.friend;
 
+import com.back.moyeomoyeo.dto.friend.response.FriendListResponse;
 import com.back.moyeomoyeo.dto.friend.response.NewFriendIsRequestResponse;
 import com.back.moyeomoyeo.dto.friend.response.QNewFriendIsRequestResponse;
 import com.back.moyeomoyeo.entity.friend.Friend;
@@ -11,10 +12,11 @@ import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.back.moyeomoyeo.entity.friend.QFriend.friend;
 import static com.back.moyeomoyeo.entity.friend.QFriendApprove.friendApprove;
@@ -67,6 +69,28 @@ public class FriendRepositoryCustom {
                         friend.member.eq(member))
                 .fetchFirst();
         return findFriend != null;
+    }
+
+    public Slice<FriendListResponse> friends(Pageable pageable, Member member) {
+        QueryResults<Friend> result = queryFactory
+                .selectFrom(friend)
+                .where(friend.member.eq(member))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetchResults();
+
+
+        List<FriendListResponse> content = new ArrayList<>();
+        for (Friend friends : result.getResults()) {
+            content.add(new FriendListResponse(friends.getId(), friends.getFriendNickname()));
+        }
+        boolean hasNext = false;
+        if (content.size() > pageable.getPageSize()) {
+            content.remove(pageable.getPageSize());
+            hasNext = true;
+        }
+
+        return new SliceImpl<>(content, pageable, hasNext);
     }
 
     public Boolean isProcessFriend(String requestFriendNickname, Member member) {

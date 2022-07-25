@@ -2,6 +2,7 @@ package com.back.moyeomoyeo.service.friend;
 
 import com.back.moyeomoyeo.dto.friend.request.NewFriendReqProcessRequest;
 import com.back.moyeomoyeo.dto.friend.request.NewFriendRequest;
+import com.back.moyeomoyeo.dto.friend.response.FriendListResponse;
 import com.back.moyeomoyeo.dto.friend.response.NewFriendIsRequestResponse;
 import com.back.moyeomoyeo.dto.friend.response.NewFriendResponse;
 import com.back.moyeomoyeo.entity.friend.FriendApprove;
@@ -19,6 +20,7 @@ import com.back.moyeomoyeo.security.AuthorizedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,6 +95,13 @@ public class FriendService {
 
         return new NewFriendResponse(message);
     }
+
+    public Slice<FriendListResponse> friends(Pageable pageable) {
+        AuthorizedUser member = sessionUser();
+
+        return friendRepositoryCustom.friends(pageable, member.getMember());
+    }
+
 
     protected AuthorizedUser sessionUser() {
         return (AuthorizedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

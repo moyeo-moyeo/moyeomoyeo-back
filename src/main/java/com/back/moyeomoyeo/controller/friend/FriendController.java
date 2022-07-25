@@ -2,12 +2,14 @@ package com.back.moyeomoyeo.controller.friend;
 
 import com.back.moyeomoyeo.dto.friend.request.NewFriendReqProcessRequest;
 import com.back.moyeomoyeo.dto.friend.request.NewFriendRequest;
+import com.back.moyeomoyeo.dto.friend.response.FriendListResponse;
 import com.back.moyeomoyeo.dto.friend.response.NewFriendIsRequestResponse;
 import com.back.moyeomoyeo.dto.friend.response.NewFriendResponse;
 import com.back.moyeomoyeo.service.friend.FriendService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,5 +36,10 @@ public class FriendController {
     @PostMapping("/new-friend/request")
     public ResponseEntity<NewFriendResponse> newFriendRequestProcess(@RequestBody NewFriendReqProcessRequest newFriendReqProcessRequest) {
         return new ResponseEntity<>(friendService.newFriendRequestProcess(newFriendReqProcessRequest), HttpStatus.OK);
+    }
+
+    @GetMapping
+    public Slice<FriendListResponse> friends(Pageable pageable) {
+        return friendService.friends(pageable);
     }
 }
