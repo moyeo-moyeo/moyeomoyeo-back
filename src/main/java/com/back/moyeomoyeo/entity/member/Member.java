@@ -1,5 +1,6 @@
 package com.back.moyeomoyeo.entity.member;
 
+import com.back.moyeomoyeo.BaseEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -12,8 +13,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Getter
-@ToString
-public class Member {
+public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "memberId")

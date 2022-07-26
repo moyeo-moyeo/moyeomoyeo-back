@@ -1,5 +1,6 @@
 package com.back.moyeomoyeo.entity.friend;
 
+import com.back.moyeomoyeo.BaseEntity;
 import com.back.moyeomoyeo.entity.friend.friendenum.FriendApproveEnum;
 import com.back.moyeomoyeo.entity.friend.friendenum.FriendProcessEnum;
 import com.back.moyeomoyeo.entity.member.Member;
@@ -11,7 +12,7 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor
 @Getter
-public class FriendApprove {
+public class FriendApprove extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "friendApproveId")
