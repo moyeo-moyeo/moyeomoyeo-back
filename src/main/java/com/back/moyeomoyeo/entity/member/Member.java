@@ -1,8 +1,8 @@
 package com.back.moyeomoyeo.entity.member;
 
-import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -12,10 +12,11 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Getter
-public class Member  {
+@ToString
+public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "memberId")
     private Long id;
 
     private String loginId;
@@ -32,16 +33,6 @@ public class Member  {
 
     private String role;
 
-    public void encodingPassword(String password) {
-        this.password = password;
-    }
-
-    public List<String> getRoleList(){
-        if(this.role.length()>0)
-            return Arrays.asList(role.split(","));
-
-        return new ArrayList<>();
-    }
     public Member(String loginId, String password, String username, String nickname, String birthDate, String phoneNumber) {
         this.loginId = loginId;
         this.password = password;
@@ -51,4 +42,17 @@ public class Member  {
         this.phoneNumber = phoneNumber;
         this.role = "ROLE_USER";
     }
+
+    public void encodingPassword(String password) {
+        this.password = password;
+    }
+
+    public List<String> getRoleList() {
+        if (this.role.length() > 0)
+            return Arrays.asList(role.split(","));
+
+        return new ArrayList<>();
+    }
+
+
 }
