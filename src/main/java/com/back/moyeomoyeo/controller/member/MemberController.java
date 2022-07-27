@@ -43,12 +43,13 @@ public class MemberController {
 
     }
 
-    @GetMapping("/")
+    @GetMapping("/get")
     public  String getLoginId(){
         AuthorizedUser principal = (AuthorizedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         return principal.getUsername();
 
     }
+
 
 }

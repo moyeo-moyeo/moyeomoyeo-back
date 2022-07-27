@@ -51,7 +51,7 @@ class UserDetailServiceImplTest {
         mockMvc.perform(formLogin()
                 .user("testId")
                 .password("testPw")).andExpect(authenticated());
-    }
+      }
 
     @Test
     @DisplayName("로그인_요청_실패")
