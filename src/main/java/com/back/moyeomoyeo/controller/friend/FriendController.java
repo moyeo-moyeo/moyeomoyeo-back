@@ -38,7 +38,7 @@ public class FriendController {
         return new ResponseEntity<>(friendService.newFriendRequestProcess(newFriendReqProcessRequest), HttpStatus.OK);
     }
 
-    @GetMapping
+    @GetMapping("/friend-list")
     public Slice<FriendListResponse> friends(Pageable pageable) {
         return friendService.friends(pageable);
     }
