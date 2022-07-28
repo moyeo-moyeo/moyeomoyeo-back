@@ -25,7 +25,7 @@ public class MemberRepositoryCustom {
 
         Member findMember = queryFactory
                 .selectFrom(member)
-                .where(loginIdEq(loginId))
+                .where(member.loginId.eq(loginId))
                 .fetchFirst();
 
         return findMember != null;
@@ -35,7 +35,7 @@ public class MemberRepositoryCustom {
 
         Member findMember = queryFactory
                 .selectFrom(member)
-                .where(nicknameEq(nickname))
+                .where(member.nickname.eq(nickname))
                 .fetchFirst();
 
         return findMember != null;
