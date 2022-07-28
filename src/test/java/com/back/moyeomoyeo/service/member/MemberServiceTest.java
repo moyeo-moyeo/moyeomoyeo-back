@@ -16,6 +16,8 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.security.NoSuchAlgorithmException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -100,4 +102,19 @@ class MemberServiceTest {
     }
 
 
+    @Test
+    @DisplayName("임시 비밀번호 생성")
+    void create_temporary_password() throws NoSuchAlgorithmException {
+        String temporaryPassword = memberService.createTemporaryPassword();
+        String temporaryPassword2 = memberService.createTemporaryPassword();
+
+        assertThat(temporaryPassword).isNotEmpty();
+        assertThat(temporaryPassword).isNotEqualTo("");
+        assertThat(temporaryPassword).isInstanceOf(String.class);
+        assertThat(temporaryPassword.length()).isLessThan(9);
+        assertThat(temporaryPassword2).isNotEqualTo(temporaryPassword);
+    }
+
+
 }
+

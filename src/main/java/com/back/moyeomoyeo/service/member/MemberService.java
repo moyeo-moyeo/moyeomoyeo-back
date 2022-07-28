@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -46,6 +49,18 @@ public class MemberService {
             throw new ErrorException(ErrorCode.DUPLICATE_NICKNAME);
         }
         return new MemberDuplicateResponse("사용 가능한 닉네임입니다.");
+    }
+
+    public String createTemporaryPassword() throws NoSuchAlgorithmException {
+        SecureRandom random = new SecureRandom();
+        final String passwordList = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < 8; i++) {
+            int randomIndex = random.nextInt(passwordList.length());
+            sb.append(passwordList.charAt(randomIndex));
+        }
+        return sb.toString();
     }
 }
 
