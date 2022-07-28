@@ -48,13 +48,6 @@ public class MemberRepositoryCustom {
                 .fetchOne();
     }
 
-    public Member findByUsername(String username) {
-        return queryFactory
-                .selectFrom(member)
-                .where(usernameEq(username))
-                .fetchFirst();
-    }
-
 
     private BooleanExpression loginIdEq(String loginId) {
         return loginId != null ? member.loginId.eq(loginId) : null;
