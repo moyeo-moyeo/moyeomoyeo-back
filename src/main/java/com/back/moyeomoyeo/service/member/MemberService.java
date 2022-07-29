@@ -8,7 +8,9 @@ import com.back.moyeomoyeo.errorhandle.member.ErrorCode;
 import com.back.moyeomoyeo.errorhandle.member.ErrorException;
 import com.back.moyeomoyeo.repository.member.MemberRepository;
 import com.back.moyeomoyeo.repository.member.MemberRepositoryCustom;
+import com.back.moyeomoyeo.security.AuthorizedUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,16 +53,29 @@ public class MemberService {
         return new MemberDuplicateResponse("사용 가능한 닉네임입니다.");
     }
 
+    protected AuthorizedUser sessionUser() {
+        return (AuthorizedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
     public String createTemporaryPassword() throws NoSuchAlgorithmException {
         SecureRandom random = new SecureRandom();
         final String passwordList = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";
         StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < 8; i++) {
+        int passwordLength = 8 ;
+        for (int i = 0; i < passwordLength; i++) {
             int randomIndex = random.nextInt(passwordList.length());
             sb.append(passwordList.charAt(randomIndex));
         }
         return sb.toString();
+    }
+
+    public boolean isAuthorizedPassword(String updateReqPassword) {
+        AuthorizedUser authorizedUser = this.sessionUser();
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        if (bCryptPasswordEncoder.matches(updateReqPassword,authorizedUser.getPassword()))
+            return true;
+        return false;
     }
 }
 

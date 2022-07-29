@@ -7,6 +7,7 @@ import com.back.moyeomoyeo.errorhandle.member.ErrorCode;
 import com.back.moyeomoyeo.errorhandle.member.ErrorException;
 import com.back.moyeomoyeo.repository.member.MemberRepository;
 import com.back.moyeomoyeo.repository.member.MemberRepositoryCustom;
+import com.back.moyeomoyeo.security.AuthorizedUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -115,6 +116,21 @@ class MemberServiceTest {
         assertThat(temporaryPassword2).isNotEqualTo(temporaryPassword);
     }
 
+    @Test
+    @DisplayName("이전 비밀번호 동일여부 확인")
+    void is_authorized_password() {
+        BCryptPasswordEncoder bCryptPasswordEncoder1 = new BCryptPasswordEncoder();
+        String testPassword = "test";
+
+        Member member = new Member("test", bCryptPasswordEncoder1.encode(testPassword), "username",
+                "nickname", "1999-03-19", "010-4183-2288");
+
+        doReturn(new AuthorizedUser(member)).when(memberService).sessionUser();
+
+        assertThat(memberService.isAuthorizedPassword(testPassword)).isEqualTo(Boolean.TRUE);
+
+
+    }
 
 }
 
