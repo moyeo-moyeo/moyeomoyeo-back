@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -54,12 +55,14 @@ public class MemberService {
         return new MemberDuplicateResponse("사용 가능한 닉네임입니다.");
     }
 
-   public MemberUpdatePasswordResponse doUpdateTempPassword() throws NoSuchAlgorithmException {
+   @Transactional
+    public MemberUpdatePasswordResponse doUpdateTempPassword() throws NoSuchAlgorithmException {
 
         AuthorizedUser authorizedUser = this.sessionUser();
         Member byLoginId = memberRepository.findByLoginId(authorizedUser.getUsername());
 
         String temporaryPassword = this.createTemporaryPassword();
+       System.out.println("temporaryPassword = " + temporaryPassword);
         String encodedTemporaryPassword = bCryptPasswordEncoder.encode(temporaryPassword);
 
         MemberUpdatePasswordResponse response = new MemberUpdatePasswordResponse(byLoginId.getPassword(), "");
