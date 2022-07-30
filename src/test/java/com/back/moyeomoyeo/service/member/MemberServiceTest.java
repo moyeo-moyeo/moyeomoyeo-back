@@ -35,7 +35,7 @@ class MemberServiceTest {
     MemberRepository memberRepository;
     @Mock
     MemberRepositoryCustom memberRepositoryCustom;
-    @Mock
+    @Spy
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     MemberRequest newMember() {
@@ -126,6 +126,7 @@ class MemberServiceTest {
                 "nickname", "1999-03-19", "010-4183-2288");
 
         doReturn(new AuthorizedUser(member)).when(memberService).sessionUser();
+
 
         assertThat(memberService.isAuthorizedPassword(testPassword)).isEqualTo(Boolean.TRUE);
 

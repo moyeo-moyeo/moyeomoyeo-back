@@ -62,7 +62,7 @@ public class MemberService {
         final String passwordList = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";
         StringBuilder sb = new StringBuilder();
 
-        int passwordLength = 8 ;
+        int passwordLength = 8;
         for (int i = 0; i < passwordLength; i++) {
             int randomIndex = random.nextInt(passwordList.length());
             sb.append(passwordList.charAt(randomIndex));
@@ -72,8 +72,7 @@ public class MemberService {
 
     public boolean isAuthorizedPassword(String updateReqPassword) {
         AuthorizedUser authorizedUser = this.sessionUser();
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        if (bCryptPasswordEncoder.matches(updateReqPassword,authorizedUser.getPassword()))
+        if (bCryptPasswordEncoder.matches(updateReqPassword, authorizedUser.getPassword()))
             return true;
         return false;
     }
