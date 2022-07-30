@@ -2,6 +2,7 @@ package com.back.moyeomoyeo.service.member;
 
 import com.back.moyeomoyeo.dto.member.request.MemberRequest;
 import com.back.moyeomoyeo.dto.member.response.MemberResponse;
+import com.back.moyeomoyeo.dto.member.response.MemberUpdatePasswordResponse;
 import com.back.moyeomoyeo.entity.member.Member;
 import com.back.moyeomoyeo.errorhandle.member.ErrorCode;
 import com.back.moyeomoyeo.errorhandle.member.ErrorException;
@@ -35,6 +36,8 @@ class MemberServiceTest {
     MemberRepository memberRepository;
     @Mock
     MemberRepositoryCustom memberRepositoryCustom;
+
+
     @Spy
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -132,6 +135,29 @@ class MemberServiceTest {
 
 
     }
+
+    @Test
+    @DisplayName("비밀번호 수정 매서드 테스트")
+    void doUpdatePassword() throws NoSuchAlgorithmException {
+        BCryptPasswordEncoder bCryptPasswordEncoder1 = new BCryptPasswordEncoder();
+        String testPassword = "test";
+        Member member = new Member("test", bCryptPasswordEncoder1.encode(testPassword), "username",
+                "nickname", "1999-03-19", "010-4183-2288");
+
+        doReturn(new AuthorizedUser(member)).when(memberService).sessionUser();
+        when(memberRepository.findByLoginId(member.getLoginId())).thenReturn(member);
+
+        MemberUpdatePasswordResponse memberUpdatePasswordResponse = memberService.doUpdateTempPassword();
+
+        assertThat(memberUpdatePasswordResponse.getBeforePassword()).isNotEqualTo("");
+        assertThat(memberUpdatePasswordResponse.getCurrentPassword()).isNotEqualTo("");
+        assertThat(memberUpdatePasswordResponse.getBeforePassword()).isNotEqualTo(memberUpdatePasswordResponse.getCurrentPassword());
+    }
+
+
+
+
+
 
 }
 

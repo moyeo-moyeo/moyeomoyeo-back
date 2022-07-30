@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.NoSuchAlgorithmException;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,14 +36,18 @@ public class MemberController {
         return new ResponseEntity<>(memberService.isNickname(nickname), HttpStatus.OK);
     }
 
+    @GetMapping("/user/tempPassword")
+    public ResponseEntity<String> doUpdateTempPassword() throws NoSuchAlgorithmException {
+        return new ResponseEntity<>(memberService.doUpdateTempPassword().getMessage(), HttpStatus.OK);
+    }
+
     @GetMapping("/")
-    public  String getLoginId(){
+    public String getLoginId() {
         AuthorizedUser principal = (AuthorizedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         return principal.getUsername();
 
     }
-
 
 
 }
