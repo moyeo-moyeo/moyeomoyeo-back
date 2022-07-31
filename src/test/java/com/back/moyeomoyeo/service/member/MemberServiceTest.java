@@ -1,6 +1,7 @@
 package com.back.moyeomoyeo.service.member;
 
 import com.back.moyeomoyeo.dto.member.request.MemberRequest;
+import com.back.moyeomoyeo.dto.member.request.MemberUpdatePasswordRequest;
 import com.back.moyeomoyeo.dto.member.response.MemberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberUpdatePasswordResponse;
 import com.back.moyeomoyeo.entity.member.Member;
@@ -41,6 +42,7 @@ class MemberServiceTest {
     @Spy
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    private final  String  testPassword = "test";
     MemberRequest newMember() {
         return new MemberRequest("test", "1234", "1234", "테스터", "아으닉넥임",
                 "981015", "01012341234");
@@ -119,14 +121,11 @@ class MemberServiceTest {
         assertThat(temporaryPassword2).isNotEqualTo(temporaryPassword);
     }
 
+
     @Test
     @DisplayName("이전 비밀번호 동일여부 확인")
     void is_authorized_password() {
-        BCryptPasswordEncoder bCryptPasswordEncoder1 = new BCryptPasswordEncoder();
-        String testPassword = "test";
-
-        Member member = new Member("test", bCryptPasswordEncoder1.encode(testPassword), "username",
-                "nickname", "1999-03-19", "010-4183-2288");
+        Member member = getMockMember();
 
         doReturn(new AuthorizedUser(member)).when(memberService).sessionUser();
 
@@ -136,13 +135,18 @@ class MemberServiceTest {
 
     }
 
+    private Member getMockMember() {
+        BCryptPasswordEncoder bCryptPasswordEncoder1 = new BCryptPasswordEncoder();
+        Member member = new Member("test", bCryptPasswordEncoder1.encode(testPassword), "username",
+                "nickname", "1999-03-19", "010-4183-2288");
+        return member;
+    }
+
     @Test
     @DisplayName("비밀번호 수정 매서드 테스트")
     void doUpdatePassword() throws NoSuchAlgorithmException {
-        BCryptPasswordEncoder bCryptPasswordEncoder1 = new BCryptPasswordEncoder();
-        String testPassword = "test";
-        Member member = new Member("test", bCryptPasswordEncoder1.encode(testPassword), "username",
-                "nickname", "1999-03-19", "010-4183-2288");
+
+        Member member = getMockMember();
 
         doReturn(new AuthorizedUser(member)).when(memberService).sessionUser();
         when(memberRepository.findByLoginId(member.getLoginId())).thenReturn(member);
@@ -155,8 +159,35 @@ class MemberServiceTest {
     }
 
 
+    @Test
+    @DisplayName("비밀번호 변경 성공")
+    void changePassword() {
+        /* 순서
+         * 1 : Patch 요청으로 현재비밀번호, 바꿀 비밀번호, 비밀번호 확인
+         * 2 : 현재 비밀번호가 나의 비밀번호 맞는지 확인
+         * 3 : 맞으면 비밀번호 업데이트
+         * 4 : 결과 전송
+         *
+         * 결과
+         * Member.getPassword == 바꿀 비밀번호
+         * */
+        //given
+        BCryptPasswordEncoder bCryptPasswordEncoder1 = new BCryptPasswordEncoder();
+
+        MemberUpdatePasswordRequest memberUpdatePasswordRequest = new MemberUpdatePasswordRequest("test", "changePassword", "changePassword");
+        Member member = getMockMember();
+
+        //when\
+        doReturn(new AuthorizedUser(member)).when(memberService).sessionUser();
+        when(memberRepository.findByLoginId(anyString())).thenReturn(member);
+        MemberUpdatePasswordResponse memberUpdatePasswordResponse = memberService.changePassword(memberUpdatePasswordRequest);
+
+        //then
+        assertThat(bCryptPasswordEncoder1.matches(memberUpdatePasswordRequest.getAfterPassword(), memberUpdatePasswordResponse.getCurrentPassword()))
+                .isEqualTo(true);
 
 
+    }
 
 
 }

@@ -1,6 +1,7 @@
 package com.back.moyeomoyeo.service.member;
 
 import com.back.moyeomoyeo.dto.member.request.MemberRequest;
+import com.back.moyeomoyeo.dto.member.request.MemberUpdatePasswordRequest;
 import com.back.moyeomoyeo.dto.member.response.MemberDuplicateResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberUpdatePasswordResponse;
@@ -55,6 +56,20 @@ public class MemberService {
         return new MemberDuplicateResponse("사용 가능한 닉네임입니다.");
     }
 
+    @Transactional
+    public MemberUpdatePasswordResponse changePassword(MemberUpdatePasswordRequest memberUpdatePasswordRequest) {
+        AuthorizedUser authorizedUser = this.sessionUser();
+        Member byLoginId = memberRepository.findByLoginId(authorizedUser.getUsername());
+
+        if (this.isAuthorizedPassword(memberUpdatePasswordRequest.getBeforePassword())) {
+            String encodedPassword = bCryptPasswordEncoder.encode(memberUpdatePasswordRequest.getAfterPassword());
+            byLoginId.encodingPassword(encodedPassword);
+
+            return new MemberUpdatePasswordResponse(memberUpdatePasswordRequest.getBeforePassword(), byLoginId.getPassword());
+        }
+        return new MemberUpdatePasswordResponse();
+    }
+
    @Transactional
     public MemberUpdatePasswordResponse doUpdateTempPassword() throws NoSuchAlgorithmException {
 
@@ -96,6 +111,7 @@ public class MemberService {
             return true;
         return false;
     }
+
 
 }
 
