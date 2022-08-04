@@ -30,6 +30,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.querydsl:querydsl-jpa:5.0.0'
     implementation 'com.querydsl:querydsl-apt:5.0.0'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     compileOnly 'org.projectlombok:lombok'
