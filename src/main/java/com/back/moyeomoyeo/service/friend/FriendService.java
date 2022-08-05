@@ -36,8 +36,8 @@ public class FriendService {
 
 
     @Transactional
-    public NewFriendResponse newFriendRequest(NewFriendRequest newFriendRequest) {
-        AuthorizedUser loginMember = sessionUser();
+    public NewFriendResponse newFriendRequest(AuthorizedUser loginMember, NewFriendRequest newFriendRequest) {
+
         Member findMember = memberRepository.findByLoginId(loginMember.getUsername());
 
         if (!memberRepository.existsNickname(newFriendRequest.getFriendNickname())) {
