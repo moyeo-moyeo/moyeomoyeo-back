@@ -5,6 +5,7 @@ import com.back.moyeomoyeo.dto.friend.request.NewFriendRequest;
 import com.back.moyeomoyeo.dto.friend.response.FriendListResponse;
 import com.back.moyeomoyeo.dto.friend.response.NewFriendIsRequestResponse;
 import com.back.moyeomoyeo.dto.friend.response.NewFriendResponse;
+import com.back.moyeomoyeo.security.AuthorizedUser;
 import com.back.moyeomoyeo.service.friend.FriendService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,8 +26,8 @@ public class FriendController {
     private final FriendService friendService;
 
     @PostMapping("/new-friend")
-    public ResponseEntity<NewFriendResponse> newFriendRequest(@RequestBody NewFriendRequest newFriendRequest) {
-        return new ResponseEntity<>(friendService.newFriendRequest(newFriendRequest), HttpStatus.OK);
+    public ResponseEntity<NewFriendResponse> newFriendRequest(@AuthenticationPrincipal AuthorizedUser authorizedUser, @RequestBody NewFriendRequest newFriendRequest) {
+        return new ResponseEntity<>(friendService.newFriendRequest(authorizedUser, newFriendRequest), HttpStatus.OK);
     }
 
     @GetMapping("/new-friend/request")
