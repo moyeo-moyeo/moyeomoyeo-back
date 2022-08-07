@@ -53,6 +53,7 @@ public class FriendRepositoryCustom {
         return fa != null;
     }
 
+
     public FriendApprove findFriendApprove(String nickname, Member requestMember) {
         return queryFactory
                 .selectFrom(friendApprove)
@@ -82,7 +83,7 @@ public class FriendRepositoryCustom {
 
         List<FriendListResponse> content = new ArrayList<>();
         for (Friend friends : result.getResults()) {
-            content.add(new FriendListResponse(friends.getId(), friends.getFriendNickname()));
+            content.add(new FriendListResponse(friends.getId(), friends.getRequestSendMemberNickname()));
         }
         boolean hasNext = false;
         if (content.size() > pageable.getPageSize()) {
@@ -91,17 +92,6 @@ public class FriendRepositoryCustom {
         }
 
         return new SliceImpl<>(content, pageable, hasNext);
-    }
-
-    public Boolean isProcessFriend(String requestFriendNickname, Member member) {
-        FriendApprove findFriendApprove = queryFactory
-                .selectFrom(friendApprove)
-                .where(requestNicknameEq(requestFriendNickname)
-                        , memberEq(member),
-                        friendApprove.isProcess.eq(FriendProcessEnum.WAIT),
-                        friendApprove.isApprove.eq(FriendApproveEnum.REQUEST))
-                .fetchFirst();
-        return findFriendApprove != null;
     }
 
 
