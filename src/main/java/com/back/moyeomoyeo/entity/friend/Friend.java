@@ -18,12 +18,12 @@ public class Friend extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
-    private Member member;
+    private Member requestGetMember;
 
-    private String friendNickname;
+    private String requestSendMemberNickname;
 
-    public Friend(Member member, String friendNickname) {
-        this.member = member;
-        this.friendNickname = friendNickname;
+    public Friend(Member requestGetMember, String requestSendMemberNickname) {
+        this.requestGetMember = requestGetMember;
+        this.requestSendMemberNickname = requestSendMemberNickname;
     }
 }
