@@ -2,6 +2,7 @@ package com.back.moyeomoyeo.service.friend;
 
 import com.back.moyeomoyeo.dto.friend.request.NewFriendReqProcessRequest;
 import com.back.moyeomoyeo.dto.friend.request.NewFriendRequest;
+import com.back.moyeomoyeo.dto.friend.response.NewFriendIsRequestResponse;
 import com.back.moyeomoyeo.dto.friend.response.NewFriendResponse;
 import com.back.moyeomoyeo.entity.friend.Friend;
 import com.back.moyeomoyeo.entity.friend.FriendApprove;
@@ -17,8 +18,12 @@ import com.back.moyeomoyeo.security.AuthorizedUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -187,5 +192,42 @@ class FriendServiceTest {
         assertThat(friendRequest.getIsProcess()).isEqualTo(FriendProcessEnum.PROCESS);
     }
 
+    @Test
+    void 로그인한사용자는_친구요청을_수락한_사용자들의_닉네임_리스트_응답() {
+        //given
+        Member member1 = new Member("test", "1234", "hoe",
+                "아으닉네임", "981015", "01012341234");
+        Member member2 = new Member("test12", "1234", "hi",
+                "제2의 인생", "981015", "01012341234");
+        Member member3 = new Member("te2", "1234", "hi",
+                "친구하자", "981017", "01022222222");
+
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+        memberRepository.save(member3);
+
+        AuthorizedUser requestSendLoginMember = new AuthorizedUser(member2);
+        friendService.newFriendRequest(requestSendLoginMember, new NewFriendRequest(member1.getNickname()));
+        AuthorizedUser requestSendLoginMember2 = new AuthorizedUser(member3);
+        friendService.newFriendRequest(requestSendLoginMember2, new NewFriendRequest(member1.getNickname()));
+        AuthorizedUser requestGetLoginMember = new AuthorizedUser(member1);
+
+        friendService.newFriendRequestProcess(requestGetLoginMember,
+                new NewFriendReqProcessRequest(requestSendLoginMember.getMember().getNickname(), FriendApproveEnum.AGREE));
+        friendService.newFriendRequestProcess(requestGetLoginMember,
+                new NewFriendReqProcessRequest(requestSendLoginMember2.getMember().getNickname(), FriendApproveEnum.AGREE));
+
+
+        //when
+        PageRequest pageable = PageRequest.of(1, 2);
+        Page<NewFriendIsRequestResponse> newFriendRequest = friendService.getNewFriendRequest(requestGetLoginMember, pageable);
+        List<NewFriendIsRequestResponse> content = newFriendRequest.getContent();
+        NewFriendIsRequestResponse newFriendIsRequestResponse1 = content.get(0);
+        NewFriendIsRequestResponse newFriendIsRequestResponse2 = content.get(1);
+        //then
+        assertThat(content.size()).isEqualTo(2);
+        assertThat(newFriendIsRequestResponse1.getRequestMember()).isEqualTo(member2.getNickname());
+        assertThat(newFriendIsRequestResponse2.getRequestMember()).isEqualTo(member3.getNickname());
+    }
 
 }
