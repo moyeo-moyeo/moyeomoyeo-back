@@ -31,13 +31,13 @@ public class FriendController {
     }
 
     @GetMapping("/new-friend/request")
-    public ResponseEntity<Page<NewFriendIsRequestResponse>> getNewFriendRequest(@PageableDefault(size = 10) Pageable pageable) {
-        return new ResponseEntity<>(friendService.getNewFriendRequest(pageable), HttpStatus.OK);
+    public ResponseEntity<Page<NewFriendIsRequestResponse>> getNewFriendRequest(@AuthenticationPrincipal AuthorizedUser authorizedUser, @PageableDefault(size = 10) Pageable pageable) {
+        return new ResponseEntity<>(friendService.getNewFriendRequest(authorizedUser, pageable), HttpStatus.OK);
     }
 
     @PostMapping("/new-friend/request")
-    public ResponseEntity<NewFriendResponse> newFriendRequestProcess(@RequestBody NewFriendReqProcessRequest newFriendReqProcessRequest) {
-        return new ResponseEntity<>(friendService.newFriendRequestProcess(newFriendReqProcessRequest), HttpStatus.OK);
+    public ResponseEntity<NewFriendResponse> newFriendRequestProcess(@AuthenticationPrincipal AuthorizedUser authorizedUser, @RequestBody NewFriendReqProcessRequest newFriendReqProcessRequest) {
+        return new ResponseEntity<>(friendService.newFriendRequestProcess(authorizedUser, newFriendReqProcessRequest), HttpStatus.OK);
     }
 
     @GetMapping("/friend-list")
