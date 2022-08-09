@@ -46,13 +46,10 @@ public class FriendService {
         if (newFriendRequest.getFriendNickname().equals(findMember.getNickname())) {
             throw new ErrorException(ErrorCode.NOT_ADD_MYSELF);
         }
-        if (friendRepositoryCustom.isProcessFriend(newFriendRequest.getFriendNickname(), findMember)) {
-            throw new ErrorException(ErrorCode.DUPLICATE_ADD_REQUEST_FRIEND);
-        }
 
         Member getMember = memberRepository.findByNickname(newFriendRequest.getFriendNickname());
 
-        if (friendRepositoryCustom.isRequest(findMember.getNickname(), getMember)) {
+        if (friendRepositoryCustom.isRequest(getMember.getNickname(), findMember)) {
             throw new ErrorException(ErrorCode.DUPLICATE_ADD_REQUEST_FRIEND);
         }
         if (friendRepositoryCustom.isDuplicateFriend(findMember.getNickname(), getMember)) {
