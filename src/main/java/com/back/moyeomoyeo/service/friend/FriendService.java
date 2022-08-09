@@ -64,26 +64,25 @@ public class FriendService {
     }
 
     @Transactional
-    public Page<NewFriendIsRequestResponse> getNewFriendRequest(Pageable pageable) {
-        AuthorizedUser authorizedUser = sessionUser();
+    public Page<NewFriendIsRequestResponse> getNewFriendRequest(AuthorizedUser authorizedUser, Pageable pageable) {
         Member loginMember = memberRepository.findByLoginId(authorizedUser.getUsername());
         return friendRepositoryCustom.showNewFriendRequest(loginMember, pageable);
     }
 
 
     @Transactional
-    public NewFriendResponse newFriendRequestProcess(NewFriendReqProcessRequest newFriendReqProcessRequest) {
-        Member loginMember = memberRepository.findByLoginId(sessionUser().getUsername());
+    public NewFriendResponse newFriendRequestProcess(AuthorizedUser loginMember, NewFriendReqProcessRequest newFriendReqProcessRequest) {
+        Member member = memberRepository.findByLoginId(loginMember.getUsername());
         String message = "";
         FriendApproveEnum isApprove;
-        FriendApprove friendApprove = friendRepositoryCustom.findFriendApprove(newFriendReqProcessRequest.getFriendNickname(), loginMember);
+        FriendApprove friendApprove = friendRepositoryCustom.findFriendApprove(newFriendReqProcessRequest.getFriendNickname(), member);
         if (newFriendReqProcessRequest.getIsApprove() == FriendApproveEnum.REFUSE) {
             message = "친구 요청을 거절하였습니다.";
             isApprove = FriendApproveEnum.REFUSE;
         } else {
             message = "친구 요청을 수락하였습니다.";
             isApprove = FriendApproveEnum.AGREE;
-            friendRepository.save(newFriendReqProcessRequest.toEntity(loginMember, newFriendReqProcessRequest.getFriendNickname()));
+            friendRepository.save(newFriendReqProcessRequest.toEntity(member, newFriendReqProcessRequest.getFriendNickname()));
         }
         friendApprove.processFriendStatus(isApprove, FriendProcessEnum.PROCESS);
 
