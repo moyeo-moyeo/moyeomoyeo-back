@@ -1,10 +1,12 @@
 package com.back.moyeomoyeo.service.friend;
 
+import com.back.moyeomoyeo.dto.friend.request.NewFriendReqProcessRequest;
 import com.back.moyeomoyeo.dto.friend.request.NewFriendRequest;
 import com.back.moyeomoyeo.dto.friend.response.NewFriendResponse;
 import com.back.moyeomoyeo.entity.friend.Friend;
 import com.back.moyeomoyeo.entity.friend.FriendApprove;
 import com.back.moyeomoyeo.entity.friend.friendenum.FriendApproveEnum;
+import com.back.moyeomoyeo.entity.friend.friendenum.FriendProcessEnum;
 import com.back.moyeomoyeo.entity.member.Member;
 import com.back.moyeomoyeo.errorhandle.member.ErrorException;
 import com.back.moyeomoyeo.repository.friend.FriendApproveRepository;
@@ -17,8 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -131,12 +131,61 @@ class FriendServiceTest {
 
         //when
         NewFriendResponse friendRequestResponse = friendService.newFriendRequest(loginMember, new NewFriendRequest("제2의 인생"));
-        Optional<FriendApprove> requestSendMember = friendApproveRepository.findById(member.getId());
+        FriendApprove friendRequest = friendApproveRepository.findByRequestNickname(member.getNickname());
         //then
         assertThat(friendRequestResponse.getMessage()).isEqualTo("친구 요청 완료");
-        assertThat(requestSendMember.orElseGet(() -> null).getIsApprove()).isEqualTo(FriendApproveEnum.REQUEST);
-
+        assertThat(friendRequest.getIsApprove()).isEqualTo(FriendApproveEnum.REQUEST);
+        assertThat(friendRequest.getIsProcess()).isEqualTo(FriendProcessEnum.WAIT);
 
     }
+
+
+    @Test
+    void 친구요청_받은사용자가_친구요청을_거절하면_친구_요청을_거절하였습니다_응답() {
+        //given
+        Member member = new Member("test", "1234", "hoe",
+                "아으닉네임", "981015", "01012341234");
+        Member requestMember = new Member("test12", "1234", "hi",
+                "제2의 인생", "981015", "01012341234");
+        memberRepository.save(requestMember);
+        memberRepository.save(member);
+        AuthorizedUser requestSendLoginMember = new AuthorizedUser(member);
+        friendService.newFriendRequest(requestSendLoginMember, new NewFriendRequest(requestMember.getNickname()));
+
+        //when
+        AuthorizedUser requestGetLoginMember = new AuthorizedUser(requestMember);
+        NewFriendResponse newFriendResponse = friendService.newFriendRequestProcess(requestGetLoginMember,
+                new NewFriendReqProcessRequest(requestSendLoginMember.getMember().getNickname(), FriendApproveEnum.REFUSE));
+        FriendApprove friendRequest = friendApproveRepository.findByRequestNickname(member.getNickname());
+
+        //then
+        assertThat(newFriendResponse.getMessage()).isEqualTo("친구 요청을 거절하였습니다.");
+        assertThat(friendRequest.getIsApprove()).isEqualTo(FriendApproveEnum.REFUSE);
+        assertThat(friendRequest.getIsProcess()).isEqualTo(FriendProcessEnum.PROCESS);
+
+    }
+
+    @Test
+    void 친구요청_받은사용자가_친구요청을_거절하면_친구_요청을_수락하였습니다_응답() {
+        Member member = new Member("test", "1234", "hoe",
+                "아으닉네임", "981015", "01012341234");
+        Member requestMember = new Member("test12", "1234", "hi",
+                "제2의 인생", "981015", "01012341234");
+        memberRepository.save(requestMember);
+        memberRepository.save(member);
+        AuthorizedUser requestSendLoginMember = new AuthorizedUser(member);
+        friendService.newFriendRequest(requestSendLoginMember, new NewFriendRequest(requestMember.getNickname()));
+
+        //when
+        AuthorizedUser requestGetLoginMember = new AuthorizedUser(requestMember);
+        NewFriendResponse newFriendResponse = friendService.newFriendRequestProcess(requestGetLoginMember,
+                new NewFriendReqProcessRequest(requestSendLoginMember.getMember().getNickname(), FriendApproveEnum.AGREE));
+        FriendApprove friendRequest = friendApproveRepository.findByRequestNickname(member.getNickname());
+        //then
+        assertThat(newFriendResponse.getMessage()).isEqualTo("친구 요청을 수락하였습니다.");
+        assertThat(friendRequest.getIsApprove()).isEqualTo(FriendApproveEnum.AGREE);
+        assertThat(friendRequest.getIsProcess()).isEqualTo(FriendProcessEnum.PROCESS);
+    }
+
 
 }
