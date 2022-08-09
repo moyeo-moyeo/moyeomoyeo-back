@@ -63,11 +63,11 @@ public class FriendRepositoryCustom {
     }
 
 
-    public Boolean isDuplicateFriend(String friendNickname, Member member) {
+    public Boolean isDuplicateFriend(String friendNickname, Member requestSendMemberNickname) {
         Friend findFriend = queryFactory
                 .selectFrom(friend)
-                .where(friend.friendNickname.eq(friendNickname),
-                        friend.member.eq(member))
+                .where(friend.requestGetMember.eq(requestSendMemberNickname),
+                        friend.requestSendMemberNickname.eq(friendNickname))
                 .fetchFirst();
         return findFriend != null;
     }
@@ -75,7 +75,7 @@ public class FriendRepositoryCustom {
     public Slice<FriendListResponse> friends(Pageable pageable, Member member) {
         QueryResults<Friend> result = queryFactory
                 .selectFrom(friend)
-                .where(friend.member.eq(member))
+                .where(friend.requestGetMember.eq(member))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetchResults();
