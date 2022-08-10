@@ -111,8 +111,8 @@ class MemberServiceTest {
     @Test
     @DisplayName("임시 비밀번호 생성")
     void create_temporary_password() throws NoSuchAlgorithmException {
-        String temporaryPassword = memberService.createTemporaryPassword();
-        String temporaryPassword2 = memberService.createTemporaryPassword();
+        String temporaryPassword = memberService.createTemporaryAuthenticated();
+        String temporaryPassword2 = memberService.createTemporaryAuthenticated();
 
         assertThat(temporaryPassword).isNotEmpty();
         assertThat(temporaryPassword).isNotEqualTo("");
@@ -180,15 +180,12 @@ class MemberServiceTest {
         //when\
         doReturn(new AuthorizedUser(member)).when(memberService).sessionUser();
         when(memberRepository.findByLoginId(anyString())).thenReturn(member);
-        MemberUpdatePasswordResponse memberUpdatePasswordResponse = memberService.changePassword(memberUpdatePasswordRequest);
-
+        MemberUpdatePasswordResponse memberUpdatePasswordResponse =
+        memberService.changePassword(memberUpdatePasswordRequest);
         //then
         assertThat(bCryptPasswordEncoder1.matches(memberUpdatePasswordRequest.getAfterPassword(), memberUpdatePasswordResponse.getCurrentPassword()))
                 .isEqualTo(true);
-
-
     }
-
 
 }
 

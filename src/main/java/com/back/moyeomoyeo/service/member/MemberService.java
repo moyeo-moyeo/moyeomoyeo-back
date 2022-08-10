@@ -76,7 +76,7 @@ public class MemberService {
         AuthorizedUser authorizedUser = this.sessionUser();
         Member byLoginId = memberRepository.findByLoginId(authorizedUser.getUsername());
 
-        String temporaryPassword = this.createTemporaryPassword();
+        String temporaryPassword = this.createTemporaryAuthenticated();
        System.out.println("temporaryPassword = " + temporaryPassword);
         String encodedTemporaryPassword = bCryptPasswordEncoder.encode(temporaryPassword);
 
@@ -92,7 +92,7 @@ public class MemberService {
         return (AuthorizedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
-    public String createTemporaryPassword() throws NoSuchAlgorithmException {
+    public String createTemporaryAuthenticated() throws NoSuchAlgorithmException {
         SecureRandom random = new SecureRandom();
         final String passwordList = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";
         StringBuilder sb = new StringBuilder();
