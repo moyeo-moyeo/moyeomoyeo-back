@@ -17,7 +17,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 @Service
@@ -70,14 +69,14 @@ public class MemberService {
         return new MemberUpdatePasswordResponse();
     }
 
-   @Transactional
-    public MemberUpdatePasswordResponse doUpdateTempPassword() throws NoSuchAlgorithmException {
+    @Transactional
+    public MemberUpdatePasswordResponse doUpdateTempPassword() {
 
         AuthorizedUser authorizedUser = this.sessionUser();
         Member byLoginId = memberRepository.findByLoginId(authorizedUser.getUsername());
 
-        String temporaryPassword = this.createTemporaryAuthenticated();
-       System.out.println("temporaryPassword = " + temporaryPassword);
+        String temporaryPassword = this.createTemporaryNumber();
+        System.out.println("temporaryPassword = " + temporaryPassword);
         String encodedTemporaryPassword = bCryptPasswordEncoder.encode(temporaryPassword);
 
         MemberUpdatePasswordResponse response = new MemberUpdatePasswordResponse(byLoginId.getPassword(), "");
@@ -88,11 +87,15 @@ public class MemberService {
 
     }
 
+    public void initTempAutenticateNumber(){
+
+    }
+
     protected AuthorizedUser sessionUser() {
         return (AuthorizedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
-    public String createTemporaryAuthenticated() throws NoSuchAlgorithmException {
+    public String createTemporaryNumber() {
         SecureRandom random = new SecureRandom();
         final String passwordList = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";
         StringBuilder sb = new StringBuilder();
