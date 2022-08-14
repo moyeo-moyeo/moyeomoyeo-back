@@ -40,7 +40,8 @@ class MemberServiceTest {
     @Spy
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    private final  String  testPassword = "test";
+    private final String testPassword = "test";
+
     MemberRequest newMember() {
         return new MemberRequest("test", "1234", "1234", "테스터", "아으닉넥임",
                 "981015", "01012341234");
@@ -135,9 +136,8 @@ class MemberServiceTest {
 
     private Member getMockMember() {
         BCryptPasswordEncoder bCryptPasswordEncoder1 = new BCryptPasswordEncoder();
-        Member member = new Member("test", bCryptPasswordEncoder1.encode(testPassword), "username",
+        return new Member("test", bCryptPasswordEncoder1.encode(testPassword), "username",
                 "nickname", "1999-03-19", "010-4183-2288");
-        return member;
     }
 
     @Test
@@ -179,11 +179,59 @@ class MemberServiceTest {
         doReturn(new AuthorizedUser(member)).when(memberService).sessionUser();
         when(memberRepository.findByLoginId(anyString())).thenReturn(member);
         MemberUpdatePasswordResponse memberUpdatePasswordResponse =
-        memberService.changePassword(memberUpdatePasswordRequest);
+                memberService.changePassword(memberUpdatePasswordRequest);
         //then
         assertThat(bCryptPasswordEncoder1.matches(memberUpdatePasswordRequest.getAfterPassword(), memberUpdatePasswordResponse.getCurrentPassword()))
                 .isEqualTo(true);
     }
 
+
+    @Test
+    @DisplayName("임시번호 발급 요청")
+    void reqIssueTempNumber() {
+        /*
+         * 1. 사용자가 이름만 요청으로  요청
+         * 2. Redis에 (사용자이름,임시번호) 로 저장
+         * 3. SMS 보내기
+         * */
+        String reqUser = "test";
+        InnerMemberService memberService1 = new InnerMemberService();
+
+        MemberIssueTempNumberResponse issueTempNumberResponse = memberService1.reqIssueTempNumber(reqUser);
+
+        assertThat(issueTempNumberResponse.getTempNumber().length()).isEqualTo(8);
+        assertThat(issueTempNumberResponse.getMessage()).isEqualTo("임시번호가 발급되었습니다");
+
+
+    }
+
+    private class InnerMemberService {
+        MemberIssueTempNumberResponse reqIssueTempNumber(String reqUser) {
+
+            return null;
+        }
+    }
+
+
+    private class MemberIssueTempNumberResponse {
+        private String tempNumber;
+        private String message;
+
+        public String getTempNumber() {
+            return tempNumber;
+        }
+
+        public void setTempNumber(String tempNumber) {
+            this.tempNumber = tempNumber;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+    }
 }
 

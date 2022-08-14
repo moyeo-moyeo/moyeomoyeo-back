@@ -33,5 +33,6 @@ class TempNumberTest {
 
         String s = redisTemplate.opsForValue().get(key);
         System.out.println("result = " + s);
+
     }
 }
