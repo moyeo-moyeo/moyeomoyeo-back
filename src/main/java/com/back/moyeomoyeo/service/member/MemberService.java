@@ -3,6 +3,7 @@ package com.back.moyeomoyeo.service.member;
 import com.back.moyeomoyeo.dto.member.request.MemberRequest;
 import com.back.moyeomoyeo.dto.member.request.MemberUpdatePasswordRequest;
 import com.back.moyeomoyeo.dto.member.response.MemberDuplicateResponse;
+import com.back.moyeomoyeo.dto.member.response.MemberIssueTempNumberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberUpdatePasswordResponse;
 import com.back.moyeomoyeo.entity.member.Member;
@@ -11,13 +12,12 @@ import com.back.moyeomoyeo.errorhandle.member.ErrorException;
 import com.back.moyeomoyeo.repository.member.MemberRepository;
 import com.back.moyeomoyeo.repository.member.MemberRepositoryCustom;
 import com.back.moyeomoyeo.security.AuthorizedUser;
+import com.back.moyeomoyeo.service.tempNumber.TempNumberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.security.SecureRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +26,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final MemberRepositoryCustom memberRepositoryCustom;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final TempNumberService tempNumberService;
 
 
     public MemberResponse newUser(MemberRequest memberRequest) {
@@ -75,7 +76,7 @@ public class MemberService {
         AuthorizedUser authorizedUser = this.sessionUser();
         Member byLoginId = memberRepository.findByLoginId(authorizedUser.getUsername());
 
-        String temporaryPassword = this.createTemporaryNumber();
+        String temporaryPassword = tempNumberService.createTemporaryNumber();
         System.out.println("temporaryPassword = " + temporaryPassword);
         String encodedTemporaryPassword = bCryptPasswordEncoder.encode(temporaryPassword);
 
@@ -86,31 +87,27 @@ public class MemberService {
         return response;
 
     }
+    MemberIssueTempNumberResponse reqIssueTempNumber(String reqUser) {
+        Boolean existsMember = memberRepository.existsByLoginId(reqUser);
 
-    public void initTempAutenticateNumber(){
+        if(!existsMember)
+            throw new ErrorException(ErrorCode.NOT_EXISTS_USER);
 
+
+        return new MemberIssueTempNumberResponse(tempNumberService.savedTempNumber());
     }
-
     protected AuthorizedUser sessionUser() {
         return (AuthorizedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     public String createTemporaryNumber() {
-        SecureRandom random = new SecureRandom();
-        final String passwordList = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";
-        StringBuilder sb = new StringBuilder();
 
-        int passwordLength = 8;
-        for (int i = 0; i < passwordLength; i++) {
-            int randomIndex = random.nextInt(passwordList.length());
-            sb.append(passwordList.charAt(randomIndex));
-        }
-        return sb.toString();
+        return tempNumberService.createTemporaryNumber();
     }
 
-    public boolean isAuthorizedPassword(String updateReqPassword) {
+    public boolean isAuthorizedPassword(String reqPassword) {
         AuthorizedUser authorizedUser = this.sessionUser();
-        if (bCryptPasswordEncoder.matches(updateReqPassword, authorizedUser.getPassword()))
+        if (bCryptPasswordEncoder.matches(reqPassword, authorizedUser.getPassword()))
             return true;
         return false;
     }

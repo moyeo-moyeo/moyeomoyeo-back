@@ -7,4 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
     @Transactional
     Member findByLoginId(String loginId);
+
+    Boolean existsByLoginId(String loginId);
 }

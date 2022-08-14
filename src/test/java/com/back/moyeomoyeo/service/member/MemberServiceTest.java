@@ -2,6 +2,7 @@ package com.back.moyeomoyeo.service.member;
 
 import com.back.moyeomoyeo.dto.member.request.MemberRequest;
 import com.back.moyeomoyeo.dto.member.request.MemberUpdatePasswordRequest;
+import com.back.moyeomoyeo.dto.member.response.MemberIssueTempNumberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberUpdatePasswordResponse;
 import com.back.moyeomoyeo.entity.member.Member;
@@ -10,6 +11,7 @@ import com.back.moyeomoyeo.errorhandle.member.ErrorException;
 import com.back.moyeomoyeo.repository.member.MemberRepository;
 import com.back.moyeomoyeo.repository.member.MemberRepositoryCustom;
 import com.back.moyeomoyeo.security.AuthorizedUser;
+import com.back.moyeomoyeo.service.tempNumber.TempNumberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +38,8 @@ class MemberServiceTest {
     @Mock
     MemberRepositoryCustom memberRepositoryCustom;
 
+    @Mock
+    TempNumberService tempNumberService;
 
     @Spy
     BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -193,45 +197,28 @@ class MemberServiceTest {
          * 1. 사용자가 이름만 요청으로  요청
          * 2. Redis에 (사용자이름,임시번호) 로 저장
          * 3. SMS 보내기
+         *
+         * 다른 method
+         * 1. reqUser 회원이 있는지 확인 ok
+         * 2. createTemporaryNumber();
+         * 3. RedisTemplate -> 따로 임시번호를 위한 클래스르 빼는게 맞는거 같음.
+         * 4. sms 송신
          * */
         String reqUser = "test";
-        InnerMemberService memberService1 = new InnerMemberService();
+        //when
+        when(memberRepository.existsByLoginId(reqUser)).thenReturn(true);
+        when(tempNumberService.savedTempNumber()).thenReturn("1q2w3e4r");
 
-        MemberIssueTempNumberResponse issueTempNumberResponse = memberService1.reqIssueTempNumber(reqUser);
+        MemberIssueTempNumberResponse issueTempNumberResponse = memberService.reqIssueTempNumber(reqUser);
 
+        //then
+        assertThat(issueTempNumberResponse).isNotNull();
         assertThat(issueTempNumberResponse.getTempNumber().length()).isEqualTo(8);
         assertThat(issueTempNumberResponse.getMessage()).isEqualTo("임시번호가 발급되었습니다");
 
 
     }
 
-    private class InnerMemberService {
-        MemberIssueTempNumberResponse reqIssueTempNumber(String reqUser) {
 
-            return null;
-        }
-    }
-
-
-    private class MemberIssueTempNumberResponse {
-        private String tempNumber;
-        private String message;
-
-        public String getTempNumber() {
-            return tempNumber;
-        }
-
-        public void setTempNumber(String tempNumber) {
-            this.tempNumber = tempNumber;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-    }
 }
 
