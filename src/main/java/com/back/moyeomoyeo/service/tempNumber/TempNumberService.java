@@ -1,17 +1,26 @@
 package com.back.moyeomoyeo.service.tempNumber;
 
+import com.back.moyeomoyeo.dto.tempNumber.response.SavedTempNumberResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
+@RequiredArgsConstructor
 public class TempNumberService {
-    public TempNumberService() {
-    }
+    private final RedisTemplate<String, String> redisTemplate;
+    private final int passwordLength = 8;
 
-    public String savedTempNumber() {
-        return "임시";
+    public SavedTempNumberResponse savedTempNumber(String reqUser) {
+
+        String temporaryNumber = createTemporaryNumber();
+        redisTemplate.opsForValue().set(reqUser, temporaryNumber);
+        redisTemplate.expire(reqUser, 3, TimeUnit.MINUTES);
+        return new SavedTempNumberResponse(reqUser,temporaryNumber);
     }
 
     public String createTemporaryNumber() {
@@ -19,7 +28,6 @@ public class TempNumberService {
         final String passwordList = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";
         StringBuilder sb = new StringBuilder();
 
-        int passwordLength = 8;
         for (int i = 0; i < passwordLength; i++) {
             int randomIndex = random.nextInt(passwordList.length());
             sb.append(passwordList.charAt(randomIndex));

@@ -5,6 +5,7 @@ import com.back.moyeomoyeo.dto.member.request.MemberUpdatePasswordRequest;
 import com.back.moyeomoyeo.dto.member.response.MemberIssueTempNumberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberUpdatePasswordResponse;
+import com.back.moyeomoyeo.dto.tempNumber.response.SavedTempNumberResponse;
 import com.back.moyeomoyeo.entity.member.Member;
 import com.back.moyeomoyeo.errorhandle.member.ErrorCode;
 import com.back.moyeomoyeo.errorhandle.member.ErrorException;
@@ -205,9 +206,10 @@ class MemberServiceTest {
          * 4. sms 송신
          * */
         String reqUser = "test";
+        SavedTempNumberResponse savedTempNumberResponse = new SavedTempNumberResponse(reqUser,"1q2w3e4r");
         //when
         when(memberRepository.existsByLoginId(reqUser)).thenReturn(true);
-        when(tempNumberService.savedTempNumber()).thenReturn("1q2w3e4r");
+        when(tempNumberService.savedTempNumber(reqUser)).thenReturn(savedTempNumberResponse);
 
         MemberIssueTempNumberResponse issueTempNumberResponse = memberService.reqIssueTempNumber(reqUser);
 

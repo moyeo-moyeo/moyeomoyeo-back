@@ -6,6 +6,7 @@ import com.back.moyeomoyeo.dto.member.response.MemberDuplicateResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberIssueTempNumberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberUpdatePasswordResponse;
+import com.back.moyeomoyeo.dto.tempNumber.response.SavedTempNumberResponse;
 import com.back.moyeomoyeo.entity.member.Member;
 import com.back.moyeomoyeo.errorhandle.member.ErrorCode;
 import com.back.moyeomoyeo.errorhandle.member.ErrorException;
@@ -88,13 +89,14 @@ public class MemberService {
 
     }
     MemberIssueTempNumberResponse reqIssueTempNumber(String reqUser) {
+        /*TODO  -SMS 송신 서비스 추가해야함*/
         Boolean existsMember = memberRepository.existsByLoginId(reqUser);
 
         if(!existsMember)
             throw new ErrorException(ErrorCode.NOT_EXISTS_USER);
 
-
-        return new MemberIssueTempNumberResponse(tempNumberService.savedTempNumber());
+        SavedTempNumberResponse savedTempNumberResponse = tempNumberService.savedTempNumber(reqUser);
+        return new MemberIssueTempNumberResponse(savedTempNumberResponse);
     }
     protected AuthorizedUser sessionUser() {
         return (AuthorizedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
