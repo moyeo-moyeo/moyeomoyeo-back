@@ -1,12 +1,18 @@
 package com.back.moyeomoyeo.service.member;
 
 import com.back.moyeomoyeo.dto.member.request.MemberRequest;
+import com.back.moyeomoyeo.dto.member.request.MemberUpdatePasswordRequest;
+import com.back.moyeomoyeo.dto.member.response.MemberIssueTempNumberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberResponse;
+import com.back.moyeomoyeo.dto.member.response.MemberUpdatePasswordResponse;
+import com.back.moyeomoyeo.dto.tempNumber.response.SavedTempNumberResponse;
 import com.back.moyeomoyeo.entity.member.Member;
 import com.back.moyeomoyeo.errorhandle.member.ErrorCode;
 import com.back.moyeomoyeo.errorhandle.member.ErrorException;
 import com.back.moyeomoyeo.repository.member.MemberRepository;
 import com.back.moyeomoyeo.repository.member.MemberRepositoryCustom;
+import com.back.moyeomoyeo.security.AuthorizedUser;
+import com.back.moyeomoyeo.service.tempNumber.TempNumberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,8 +38,14 @@ class MemberServiceTest {
     MemberRepository memberRepository;
     @Mock
     MemberRepositoryCustom memberRepositoryCustom;
+
     @Mock
+    TempNumberService tempNumberService;
+
+    @Spy
     BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private final String testPassword = "test";
 
     MemberRequest newMember() {
         return new MemberRequest("test", "1234", "1234", "테스터", "아으닉넥임",
@@ -100,4 +112,115 @@ class MemberServiceTest {
     }
 
 
+    @Test
+    @DisplayName("임시 비밀번호 생성")
+    void create_temporary_password() {
+        String temporaryPassword = tempNumberService.createTemporaryNumber();
+        String temporaryPassword2 = tempNumberService.createTemporaryNumber();
+
+        assertThat(temporaryPassword).isNotEmpty();
+        assertThat(temporaryPassword).isNotEqualTo("");
+        assertThat(temporaryPassword).isInstanceOf(String.class);
+        assertThat(temporaryPassword.length()).isLessThan(9);
+        assertThat(temporaryPassword2).isNotEqualTo(temporaryPassword);
+    }
+
+
+    @Test
+    @DisplayName("이전 비밀번호 동일여부 확인")
+    void is_authorized_password() {
+        Member member = getMockMember();
+
+        doReturn(new AuthorizedUser(member)).when(memberService).sessionUser();
+
+
+        assertThat(memberService.isAuthorizedPassword(testPassword)).isEqualTo(Boolean.TRUE);
+
+
+    }
+
+    private Member getMockMember() {
+        BCryptPasswordEncoder bCryptPasswordEncoder1 = new BCryptPasswordEncoder();
+        return new Member("test", bCryptPasswordEncoder1.encode(testPassword), "username",
+                "nickname", "1999-03-19", "010-4183-2288");
+    }
+
+    @Test
+    @DisplayName("비밀번호 수정 매서드 테스트")
+    void doUpdatePassword() {
+
+        Member member = getMockMember();
+
+        doReturn(new AuthorizedUser(member)).when(memberService).sessionUser();
+        when(memberRepository.findByLoginId(member.getLoginId())).thenReturn(member);
+
+        MemberUpdatePasswordResponse memberUpdatePasswordResponse = memberService.doUpdateTempPassword();
+
+        assertThat(memberUpdatePasswordResponse.getBeforePassword()).isNotEqualTo("");
+        assertThat(memberUpdatePasswordResponse.getCurrentPassword()).isNotEqualTo("");
+        assertThat(memberUpdatePasswordResponse.getBeforePassword()).isNotEqualTo(memberUpdatePasswordResponse.getCurrentPassword());
+    }
+
+
+    @Test
+    @DisplayName("비밀번호 변경 성공")
+    void changePassword() {
+        /* 순서
+         * 1 : Patch 요청으로 현재비밀번호, 바꿀 비밀번호, 비밀번호 확인
+         * 2 : 현재 비밀번호가 나의 비밀번호 맞는지 확인
+         * 3 : 맞으면 비밀번호 업데이트
+         * 4 : 결과 전송
+         *
+         * 결과
+         * Member.getPassword == 바꿀 비밀번호
+         * */
+        //given
+        BCryptPasswordEncoder bCryptPasswordEncoder1 = new BCryptPasswordEncoder();
+
+        MemberUpdatePasswordRequest memberUpdatePasswordRequest = new MemberUpdatePasswordRequest("test", "changePassword", "changePassword");
+        Member member = getMockMember();
+
+        //when\
+        doReturn(new AuthorizedUser(member)).when(memberService).sessionUser();
+        when(memberRepository.findByLoginId(anyString())).thenReturn(member);
+        MemberUpdatePasswordResponse memberUpdatePasswordResponse =
+                memberService.changePassword(memberUpdatePasswordRequest);
+        //then
+        assertThat(bCryptPasswordEncoder1.matches(memberUpdatePasswordRequest.getAfterPassword(), memberUpdatePasswordResponse.getCurrentPassword()))
+                .isEqualTo(true);
+    }
+
+
+    @Test
+    @DisplayName("임시번호 발급 요청")
+    void reqIssueTempNumber() {
+        /*
+         * 1. 사용자가 이름만 요청으로  요청
+         * 2. Redis에 (사용자이름,임시번호) 로 저장
+         * 3. SMS 보내기
+         *
+         * 다른 method
+         * 1. reqUser 회원이 있는지 확인 ok
+         * 2. createTemporaryNumber();
+         * 3. RedisTemplate -> 따로 임시번호를 위한 클래스르 빼는게 맞는거 같음.
+         * 4. sms 송신
+         * */
+        String reqUser = "test";
+        SavedTempNumberResponse savedTempNumberResponse = new SavedTempNumberResponse(reqUser,"1q2w3e4r");
+        //when
+        when(memberRepository.existsByLoginId(reqUser)).thenReturn(true);
+        when(tempNumberService.savedTempNumber(reqUser)).thenReturn(savedTempNumberResponse);
+
+        MemberIssueTempNumberResponse issueTempNumberResponse = memberService.reqIssueTempNumber(reqUser);
+
+        //then
+        assertThat(issueTempNumberResponse).isNotNull();
+        assertThat(issueTempNumberResponse.getTempNumber().length()).isEqualTo(8);
+        assertThat(issueTempNumberResponse.getMessage()).isEqualTo("임시번호가 발급되었습니다");
+
+
+    }
+
+
 }
+

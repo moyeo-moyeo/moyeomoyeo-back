@@ -3,8 +3,10 @@ package com.back.moyeomoyeo.controller.member;
 import com.back.moyeomoyeo.dto.member.request.MemberRequest;
 import com.back.moyeomoyeo.dto.member.response.MemberDuplicateResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberResponse;
+import com.back.moyeomoyeo.dto.tempNumber.response.SavedTempNumberResponse;
 import com.back.moyeomoyeo.security.AuthorizedUser;
 import com.back.moyeomoyeo.service.member.MemberService;
+import com.back.moyeomoyeo.service.tempNumber.TempNumberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import javax.validation.Valid;
 public class MemberController {
 
     private final MemberService memberService;
+    private final TempNumberService tempNumberService;
 
 
     @PostMapping("/new-member")
@@ -35,20 +38,25 @@ public class MemberController {
         return new ResponseEntity<>(memberService.isNickname(nickname), HttpStatus.OK);
     }
 
+
+    @PostMapping("/passwordReset")
+    public String createTempNumber(@RequestParam String reqUser) {
+        SavedTempNumberResponse savedTempNumberResponse = tempNumberService.savedTempNumber(reqUser);
+        return savedTempNumberResponse.getMessage();
+    }
+
+    @GetMapping("/passwordReset")
+    public boolean matchesTempNumber(@RequestParam String reqUser, @RequestParam String tempNumber) {
+        return tempNumberService.matchesTempNumber(reqUser, tempNumber);
+    }
+
     @GetMapping("/")
-    public  String getLoginId(){
+    public String getLoginId() {
         AuthorizedUser principal = (AuthorizedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         return principal.getUsername();
 
     }
 
-    @GetMapping("/")
-    public  String getLoginId(){
-        AuthorizedUser principal = (AuthorizedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        return principal.getUsername();
-
-    }
 
 }

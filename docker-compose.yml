@@ -1,13 +1,23 @@
 version: '3'
 
 services:
-  mysql :
+  mysql:
     container_name: mysql8
     image: mysql:8
     ports:
       - 3307:3306
     environment:
-      MYSQL_ROOT_PASSWORD : root
-      MYSQL_USER : moyeo
-      MYSQL_PASSWORD : moyeo12!
-      MYSQL_DATABASE : moyeo
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: moyeo
+      MYSQL_PASSWORD: moyeo12!
+      MYSQL_DATABASE: moyeo
+
+  redis:
+    image: redis
+    command: redis-server --requirepass moyeo12! --port 6379
+    container_name: "docker-redis"
+    labels:
+      - "name=redis"
+      - "mode=standalone"
+    ports:
+      - 6379:6379

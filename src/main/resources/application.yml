@@ -1,4 +1,7 @@
 spring:
+  profiles:
+    include: oauth, redis
+
   datasource:
     username: moyeo
     password: moyeo12!
@@ -9,4 +12,5 @@ spring:
       ddl-auto: create
     properties:
       hibernate:
-        show_sql:
+        format_sql: true
+        show_sql: true
