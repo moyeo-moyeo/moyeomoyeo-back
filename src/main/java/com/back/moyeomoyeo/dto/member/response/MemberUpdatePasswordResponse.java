@@ -11,11 +11,7 @@ public class MemberUpdatePasswordResponse {
 
     private String message;
 
-    public MemberUpdatePasswordResponse() {
-        this.beforePassword = "";
-        this.currentPassword = "";
-        this.message = "임시번호 발급에 실패하였습니다";
-    }
+
 
     public MemberUpdatePasswordResponse(String beforePassword, String currentPassword) {
         this.beforePassword = beforePassword;

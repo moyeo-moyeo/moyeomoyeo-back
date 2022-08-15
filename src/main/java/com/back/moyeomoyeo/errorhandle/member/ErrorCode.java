@@ -16,7 +16,9 @@ public enum ErrorCode {
 
     NOT_MATCH_PASSWORD_CONFIRM_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호와 비밀번호 재입력이 일치하지 않습니다."),
     NOT_ADD_MYSELF(HttpStatus.BAD_REQUEST, "본인을 친구 추가할 수 없습니다."),
-    NOT_EXISTS_USER(HttpStatus.BAD_REQUEST, "존재하지 않는 유저입니다.");
+    NOT_EXISTS_USER(HttpStatus.BAD_REQUEST, "존재하지 않는 유저입니다."),
+
+    FAILED_CHANGE_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호 변경에 실패하였습니다");
 
     private final HttpStatus httpStatus;
     private final String message;

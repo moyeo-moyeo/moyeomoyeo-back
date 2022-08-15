@@ -67,8 +67,9 @@ public class MemberService {
             byLoginId.encodingPassword(encodedPassword);
 
             return new MemberUpdatePasswordResponse(memberUpdatePasswordRequest.getBeforePassword(), byLoginId.getPassword());
-        }
-        return new MemberUpdatePasswordResponse();
+        } else
+            throw new ErrorException(ErrorCode.FAILED_CHANGE_PASSWORD);
+
     }
 
     @Transactional
@@ -78,34 +79,30 @@ public class MemberService {
         Member byLoginId = memberRepository.findByLoginId(authorizedUser.getUsername());
 
         String temporaryPassword = tempNumberService.createTemporaryNumber();
-        System.out.println("temporaryPassword = " + temporaryPassword);
         String encodedTemporaryPassword = bCryptPasswordEncoder.encode(temporaryPassword);
 
         MemberUpdatePasswordResponse response = new MemberUpdatePasswordResponse(byLoginId.getPassword(), "");
         byLoginId.encodingPassword(encodedTemporaryPassword);
         response.setCurrentPassword(byLoginId.getPassword());
-
         return response;
 
     }
+
     MemberIssueTempNumberResponse reqIssueTempNumber(String reqUser) {
         /*TODO  -SMS 송신 서비스 추가해야함*/
         Boolean existsMember = memberRepository.existsByLoginId(reqUser);
 
-        if(!existsMember)
+        if (!existsMember)
             throw new ErrorException(ErrorCode.NOT_EXISTS_USER);
 
         SavedTempNumberResponse savedTempNumberResponse = tempNumberService.savedTempNumber(reqUser);
         return new MemberIssueTempNumberResponse(savedTempNumberResponse);
     }
+
     protected AuthorizedUser sessionUser() {
         return (AuthorizedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
-    public String createTemporaryNumber() {
-
-        return tempNumberService.createTemporaryNumber();
-    }
 
     public boolean isAuthorizedPassword(String reqPassword) {
         AuthorizedUser authorizedUser = this.sessionUser();

@@ -115,8 +115,8 @@ class MemberServiceTest {
     @Test
     @DisplayName("임시 비밀번호 생성")
     void create_temporary_password() {
-        String temporaryPassword = memberService.createTemporaryNumber();
-        String temporaryPassword2 = memberService.createTemporaryNumber();
+        String temporaryPassword = tempNumberService.createTemporaryNumber();
+        String temporaryPassword2 = tempNumberService.createTemporaryNumber();
 
         assertThat(temporaryPassword).isNotEmpty();
         assertThat(temporaryPassword).isNotEqualTo("");
