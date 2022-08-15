@@ -3,8 +3,10 @@ package com.back.moyeomoyeo.controller.member;
 import com.back.moyeomoyeo.dto.member.request.MemberRequest;
 import com.back.moyeomoyeo.dto.member.response.MemberDuplicateResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberResponse;
+import com.back.moyeomoyeo.dto.tempNumber.response.SavedTempNumberResponse;
 import com.back.moyeomoyeo.security.AuthorizedUser;
 import com.back.moyeomoyeo.service.member.MemberService;
+import com.back.moyeomoyeo.service.tempNumber.TempNumberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,13 +14,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.security.NoSuchAlgorithmException;
 
 @RestController
 @RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
+    private final TempNumberService tempNumberService;
 
 
     @PostMapping("/new-member")
@@ -36,9 +38,16 @@ public class MemberController {
         return new ResponseEntity<>(memberService.isNickname(nickname), HttpStatus.OK);
     }
 
-    @GetMapping("/user/tempPassword")
-    public ResponseEntity<String> doUpdateTempPassword() throws NoSuchAlgorithmException {
-        return new ResponseEntity<>(memberService.doUpdateTempPassword().getMessage(), HttpStatus.OK);
+
+    @PostMapping("/passwordReset")
+    public String createTempNumber(@RequestParam String reqUser) {
+        SavedTempNumberResponse savedTempNumberResponse = tempNumberService.savedTempNumber(reqUser);
+        return savedTempNumberResponse.getMessage();
+    }
+
+    @GetMapping("/passwordReset")
+    public boolean matchesTempNumber(@RequestParam String reqUser, @RequestParam String tempNumber) {
+        return tempNumberService.matchesTempNumber(reqUser, tempNumber);
     }
 
     @GetMapping("/")

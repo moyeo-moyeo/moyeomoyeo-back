@@ -34,4 +34,13 @@ public class TempNumberService {
         }
         return sb.toString();
     }
+
+    public Boolean matchesTempNumber(String reqUser, String reqTempNumber ){
+        if(redisTemplate.hasKey(reqUser)){
+            String keyTempNumber = redisTemplate.opsForValue().get(reqUser);
+            return keyTempNumber.equals(reqTempNumber);
+        }
+        return false;
+    }
+
 }
