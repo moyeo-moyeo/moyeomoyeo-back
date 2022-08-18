@@ -15,6 +15,7 @@ import com.back.moyeomoyeo.repository.friend.FriendApproveRepository;
 import com.back.moyeomoyeo.repository.friend.FriendRepository;
 import com.back.moyeomoyeo.repository.friend.FriendRepositoryCustom;
 import com.back.moyeomoyeo.repository.member.MemberRepository;
+import com.back.moyeomoyeo.repository.member.MemberRepositoryCustom;
 import com.back.moyeomoyeo.security.AuthorizedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,20 +35,22 @@ public class FriendService {
     private final FriendRepositoryCustom friendRepositoryCustom;
     private final MemberRepository memberRepository;
 
+    private final MemberRepositoryCustom memberRepositoryCustom;
+
 
     @Transactional
     public NewFriendResponse newFriendRequest(AuthorizedUser loginMember, NewFriendRequest newFriendRequest) {
 
         Member findMember = memberRepository.findByLoginId(loginMember.getUsername());
 
-        if (!memberRepository.existsNickname(newFriendRequest.getFriendNickname())) {
+        if (!memberRepositoryCustom.existsNickname(newFriendRequest.getFriendNickname())) {
             throw new ErrorException(ErrorCode.NOT_EXISTS_USER);
         }
         if (newFriendRequest.getFriendNickname().equals(findMember.getNickname())) {
             throw new ErrorException(ErrorCode.NOT_ADD_MYSELF);
         }
 
-        Member getMember = memberRepository.findByNickname(newFriendRequest.getFriendNickname());
+        Member getMember = memberRepositoryCustom.findByNickname(newFriendRequest.getFriendNickname());
 
         if (friendRepositoryCustom.isRequest(getMember.getNickname(), findMember)) {
             throw new ErrorException(ErrorCode.DUPLICATE_ADD_REQUEST_FRIEND);

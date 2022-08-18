@@ -2,6 +2,7 @@ package com.back.moyeomoyeo.service.member;
 
 import com.back.moyeomoyeo.dto.member.request.MemberRequest;
 import com.back.moyeomoyeo.dto.member.request.MemberUpdatePasswordRequest;
+import com.back.moyeomoyeo.dto.member.response.MemberDuplicateResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberIssueTempNumberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberUpdatePasswordResponse;
@@ -34,20 +35,17 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class MemberServiceTest {
+    private final String testPassword = "test";
     @InjectMocks
     MemberService memberService;
     @Mock
     MemberRepository memberRepository;
     @Mock
     MemberRepositoryCustom memberRepositoryCustom;
-
     @Mock
     TempNumberService tempNumberService;
-
     @Spy
     BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    private final String testPassword = "test";
 
     MemberRequest newMember() {
         return new MemberRequest("test", "1234", "1234", "테스터", "아으닉넥임",
@@ -237,7 +235,7 @@ class MemberServiceTest {
          * 4. sms 송신
          * */
         String reqUser = "test";
-        SavedTempNumberResponse savedTempNumberResponse = new SavedTempNumberResponse(reqUser,"1q2w3e4r");
+        SavedTempNumberResponse savedTempNumberResponse = new SavedTempNumberResponse(reqUser, "1q2w3e4r");
         //when
         when(memberRepository.existsByLoginId(reqUser)).thenReturn(true);
         when(tempNumberService.savedTempNumber(reqUser)).thenReturn(savedTempNumberResponse);
