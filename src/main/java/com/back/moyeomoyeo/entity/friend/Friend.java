@@ -1,5 +1,6 @@
 package com.back.moyeomoyeo.entity.friend;
 
+import com.back.moyeomoyeo.BaseEntity;
 import com.back.moyeomoyeo.entity.member.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor
 @Getter
-public class Friend {
+public class Friend extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "friendId")
@@ -17,12 +18,12 @@ public class Friend {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
-    private Member member;
+    private Member requestGetMember;
 
-    private String friendNickname;
+    private String requestSendMemberNickname;
 
-    public Friend(Member member, String friendNickname) {
-        this.member = member;
-        this.friendNickname = friendNickname;
+    public Friend(Member requestGetMember, String requestSendMemberNickname) {
+        this.requestGetMember = requestGetMember;
+        this.requestSendMemberNickname = requestSendMemberNickname;
     }
 }

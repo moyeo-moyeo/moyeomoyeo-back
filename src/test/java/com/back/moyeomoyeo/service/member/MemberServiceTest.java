@@ -2,6 +2,7 @@ package com.back.moyeomoyeo.service.member;
 
 import com.back.moyeomoyeo.dto.member.request.MemberRequest;
 import com.back.moyeomoyeo.dto.member.request.MemberUpdatePasswordRequest;
+import com.back.moyeomoyeo.dto.member.response.MemberDuplicateResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberIssueTempNumberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberResponse;
 import com.back.moyeomoyeo.dto.member.response.MemberUpdatePasswordResponse;
@@ -20,32 +21,31 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class MemberServiceTest {
+    private final String testPassword = "test";
     @InjectMocks
-    @Spy
     MemberService memberService;
-
     @Mock
     MemberRepository memberRepository;
     @Mock
     MemberRepositoryCustom memberRepositoryCustom;
-
     @Mock
     TempNumberService tempNumberService;
-
     @Spy
     BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    private final String testPassword = "test";
 
     MemberRequest newMember() {
         return new MemberRequest("test", "1234", "1234", "테스터", "아으닉넥임",
@@ -83,6 +83,21 @@ class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("입력한 닉네임이 가입한 닉네임이 아닐경우 \"사용 가능한 닉네임입니다.\"를 반환합니다.")
+    void disposableNickname() {
+
+        //given
+        doReturn(new MemberDuplicateResponse("사용 가능한 닉네임입니다.")).when(memberService).isNickname(anyString());
+
+        // when
+        MemberDuplicateResponse response = memberService.isNickname(anyString());
+
+        //then
+        then(memberService).should().isNickname(anyString());
+        assertThat(response.getMessage()).isEqualTo("사용 가능한 닉네임입니다.");
+    }
+
+    @Test
     @DisplayName("이미 가입된 아이디가 있을경우 ErrorException 예외가 발생합니다.")
     void duplicateLoginId() {
         // given
@@ -93,6 +108,20 @@ class MemberServiceTest {
         assertThrows(ErrorException.class, () ->
                 memberService.isLoginId(member.getLoginId()));
         verify(memberService, atLeastOnce()).isLoginId(member.getLoginId());
+    }
+
+    @Test
+    @DisplayName("입력한 아이디가 가입한 아이디가 아닐경우 \"사용 가능한 아이디입니다.\"를 반환합니다.")
+    void disposableLoginId() {
+        //given
+        doReturn(new MemberDuplicateResponse("사용 가능한 아이디입니다.")).when(memberService).isLoginId(anyString());
+
+        //when
+        MemberDuplicateResponse response = memberService.isLoginId(anyString());
+
+        //then
+        assertThat(response.getMessage()).isEqualTo("사용 가능한 아이디입니다.");
+        then(memberService).should().isLoginId(anyString());
     }
 
     @Test
@@ -206,7 +235,7 @@ class MemberServiceTest {
          * 4. sms 송신
          * */
         String reqUser = "test";
-        SavedTempNumberResponse savedTempNumberResponse = new SavedTempNumberResponse(reqUser,"1q2w3e4r");
+        SavedTempNumberResponse savedTempNumberResponse = new SavedTempNumberResponse(reqUser, "1q2w3e4r");
         //when
         when(memberRepository.existsByLoginId(reqUser)).thenReturn(true);
         when(tempNumberService.savedTempNumber(reqUser)).thenReturn(savedTempNumberResponse);
@@ -223,4 +252,3 @@ class MemberServiceTest {
 
 
 }
-
