@@ -20,6 +20,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,6 +85,21 @@ class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("입력한 닉네임이 가입한 닉네임이 아닐경우 \"사용 가능한 닉네임입니다.\"를 반환합니다.")
+    void disposableNickname() {
+
+        //given
+        doReturn(new MemberDuplicateResponse("사용 가능한 닉네임입니다.")).when(memberService).isNickname(anyString());
+
+        // when
+        MemberDuplicateResponse response = memberService.isNickname(anyString());
+
+        //then
+        then(memberService).should().isNickname(anyString());
+        assertThat(response.getMessage()).isEqualTo("사용 가능한 닉네임입니다.");
+    }
+
+    @Test
     @DisplayName("이미 가입된 아이디가 있을경우 ErrorException 예외가 발생합니다.")
     void duplicateLoginId() {
         // given
@@ -93,6 +110,20 @@ class MemberServiceTest {
         assertThrows(ErrorException.class, () ->
                 memberService.isLoginId(member.getLoginId()));
         verify(memberService, atLeastOnce()).isLoginId(member.getLoginId());
+    }
+
+    @Test
+    @DisplayName("입력한 아이디가 가입한 아이디가 아닐경우 \"사용 가능한 아이디입니다.\"를 반환합니다.")
+    void disposableLoginId() {
+        //given
+        doReturn(new MemberDuplicateResponse("사용 가능한 아이디입니다.")).when(memberService).isLoginId(anyString());
+
+        //when
+        MemberDuplicateResponse response = memberService.isLoginId(anyString());
+
+        //then
+        assertThat(response.getMessage()).isEqualTo("사용 가능한 아이디입니다.");
+        then(memberService).should().isLoginId(anyString());
     }
 
     @Test
