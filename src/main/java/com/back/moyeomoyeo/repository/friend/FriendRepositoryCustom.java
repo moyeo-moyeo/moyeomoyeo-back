@@ -94,6 +94,17 @@ public class FriendRepositoryCustom {
         return new SliceImpl<>(content, pageable, hasNext);
     }
 
+    public boolean isExistsFriend(Member loginMember, String friendNickname) {
+        return queryFactory
+                .select(friend)
+                .from(friend)
+                .where(friend.requestGetMember.eq(loginMember),
+                        friend.requestSendMemberNickname.eq(friendNickname))
+                .fetchFirst() != null;
+
+
+    }
+
 
     public BooleanExpression memberEq(Member member) {
         return member != null ? friendApprove.member.eq(member) : null;
