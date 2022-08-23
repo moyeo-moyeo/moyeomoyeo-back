@@ -8,5 +8,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Transactional
     Member findByLoginId(String loginId);
 
+    Member findByNickname(String Nickname);
+
     Boolean existsByLoginId(String loginId);
 }
