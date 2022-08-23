@@ -15,19 +15,8 @@ class MemberRepositoryTest {
     @Autowired
     private MemberRepository memberRepository;
 
-    @Test
-    void 가입된_닉네임_또는_아이디가_없을경우_False_반환합니다() {
-        //given
-        String loginId = "hoe";
-        String nickname = "아으닉네임";
-
-        //when
-        boolean isExists = memberRepository.existsMemberLoginIdOrNickname(loginId, nickname);
-
-        //then
-        assertThat(isExists).isFalse();
-
-    }
+    @Autowired
+    private MemberRepositoryCustom memberRepositoryCustom;
 
     @Test
     void 가입된_닉네임_존재할경우_True_반환() {
@@ -37,7 +26,7 @@ class MemberRepositoryTest {
                 new Member("hoe", "1234", "hello",
                         "아으닉네임", "19981015", "01012341234"));
         //when
-        boolean isExists = memberRepository.existsNickname(nickname);
+        boolean isExists = memberRepositoryCustom.existsNickname(nickname);
 
         //then
         assertThat(isExists).isTrue();
@@ -50,7 +39,7 @@ class MemberRepositoryTest {
         String loginId = "test12";
 
         //when
-        boolean isExists = memberRepository.existsLoginId(loginId);
+        boolean isExists = memberRepositoryCustom.existsLoginId(loginId);
 
         //then
         assertThat(isExists).isFalse();
@@ -66,7 +55,7 @@ class MemberRepositoryTest {
                         "아으닉네임", "19981015", "01012341234"));
 
         //when
-        boolean isExists = memberRepository.existsLoginId(loginId);
+        boolean isExists = memberRepositoryCustom.existsLoginId(loginId);
 
         //then
         assertThat(isExists).isTrue();
