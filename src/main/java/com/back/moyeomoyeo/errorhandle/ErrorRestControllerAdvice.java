@@ -1,6 +1,7 @@
 package com.back.moyeomoyeo.errorhandle;
 
-import com.back.moyeomoyeo.errorhandle.member.ErrorCode;
+import com.back.moyeomoyeo.errorhandle.friend.FriendErrorException;
+import com.back.moyeomoyeo.errorhandle.friend.FriendExceptionResponse;
 import com.back.moyeomoyeo.errorhandle.member.ErrorException;
 import com.back.moyeomoyeo.errorhandle.member.UserExceptionResponse;
 import org.springframework.http.HttpStatus;
@@ -26,5 +27,10 @@ public class ErrorRestControllerAdvice {
     @ExceptionHandler(ErrorException.class)
     public ResponseEntity<UserExceptionResponse> userCustomException(ErrorException errorCode) {
         return UserExceptionResponse.toResponseEntity(errorCode.getErrorCode());
+    }
+
+    @ExceptionHandler(FriendErrorException.class)
+    public ResponseEntity<FriendExceptionResponse> userCustomException(FriendErrorException errorCode) {
+        return FriendExceptionResponse.toResponseEntity(errorCode.getFriendErrorCode());
     }
 }
