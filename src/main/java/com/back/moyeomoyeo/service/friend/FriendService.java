@@ -86,6 +86,8 @@ public class FriendService {
             message = "친구 요청을 수락하였습니다.";
             isApprove = FriendApproveEnum.AGREE;
             friendRepository.save(newFriendReqProcessRequest.toEntity(member, newFriendReqProcessRequest.getFriendNickname()));
+            friendRepository.save(newFriendReqProcessRequest.toEntity(memberRepository.findByNickname(newFriendReqProcessRequest.getFriendNickname()),
+                    member.getNickname()));
         }
         friendApprove.processFriendStatus(isApprove, FriendProcessEnum.PROCESS);
 
