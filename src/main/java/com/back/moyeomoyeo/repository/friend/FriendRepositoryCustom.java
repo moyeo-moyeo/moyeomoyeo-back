@@ -36,16 +36,15 @@ public class FriendRepositoryCustom {
                         friendApprove.isProcess))
                 .from(friendApprove)
                 .join(friendApprove.member, member)
-                .where(memberEq(loginMember))
+                .where(requestNicknameEq(loginMember.getNickname()))
                 .fetchResults();
         return new PageImpl<>(result.getResults(), pageable, result.getTotal());
     }
 
-    public Boolean isRequest(String nickname, Member member) {
+    public Boolean isRequest(String friendNickname, Member loginMember) {
         FriendApprove fa = queryFactory
                 .selectFrom(friendApprove)
-                .where(requestNicknameEq(nickname),
-                        memberEq(member),
+                .where(requestNicknameEq(friendNickname).and(friendApprove.member.eq(loginMember)),
                         friendApprove.isApprove.eq(FriendApproveEnum.REQUEST)
                         , friendApprove.isProcess.eq(FriendProcessEnum.WAIT))
                 .fetchFirst();
@@ -54,11 +53,10 @@ public class FriendRepositoryCustom {
     }
 
 
-    public FriendApprove findFriendApprove(String nickname, Member requestMember) {
+    public FriendApprove findFriendApprove(Member requestMember) {
         return queryFactory
                 .selectFrom(friendApprove)
-                .where(requestNicknameEq(nickname),
-                        memberEq(requestMember))
+                .where(requestNicknameEq(requestMember.getNickname()))
                 .fetchFirst();
     }
 
@@ -66,8 +64,9 @@ public class FriendRepositoryCustom {
     public Boolean isDuplicateFriend(String friendNickname, Member requestSendMemberNickname) {
         Friend findFriend = queryFactory
                 .selectFrom(friend)
-                .where(friend.requestGetMember.eq(requestSendMemberNickname),
-                        friend.requestSendMemberNickname.eq(friendNickname))
+                .where(friend.requestGetMember.nickname.eq(friendNickname)
+                        .and(friend.requestSendMemberNickname.eq(requestSendMemberNickname.getNickname())
+                        ))
                 .fetchFirst();
         return findFriend != null;
     }

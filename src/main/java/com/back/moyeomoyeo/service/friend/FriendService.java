@@ -41,27 +41,24 @@ public class FriendService {
     @Transactional
     public NewFriendResponse newFriendRequest(AuthorizedUser loginMember, NewFriendRequest newFriendRequest) {
 
-        Member findMember = memberRepository.findByLoginId(loginMember.getUsername());
+        Member findMember = memberRepository.findByLoginId(loginMember.getUsername()); // 로그인한 사용자
 
-        if (!memberRepositoryCustom.existsNickname(newFriendRequest.getFriendNickname())) {
+        if (!memberRepositoryCustom.existsNickname(newFriendRequest.getFriendNickname())) { // 친구 추가 요청한 친구가 있는 사람인지 유무 확인
             throw new ErrorException(ErrorCode.NOT_EXISTS_USER);
         }
-        if (newFriendRequest.getFriendNickname().equals(findMember.getNickname())) {
+        if (newFriendRequest.getFriendNickname().equals(findMember.getNickname())) { // 친구 추가 요청이 본인 닉네임일 경우
             throw new ErrorException(ErrorCode.NOT_ADD_MYSELF);
         }
 
-        Member getMember = memberRepositoryCustom.findByNickname(newFriendRequest.getFriendNickname());
+        Member getMember = memberRepositoryCustom.findByNickname(newFriendRequest.getFriendNickname()); // 친구 추가 요청한 친구닉네임
 
         if (friendRepositoryCustom.isRequest(getMember.getNickname(), findMember)) {
             throw new ErrorException(ErrorCode.DUPLICATE_ADD_REQUEST_FRIEND);
         }
-        if (friendRepositoryCustom.isDuplicateFriend(findMember.getNickname(), getMember)) {
+        if (friendRepositoryCustom.isDuplicateFriend(getMember.getNickname(), findMember)) {
             throw new ErrorException(ErrorCode.DUPLICATE_FRIEND);
         }
-
-
-        FriendApprove friendApprove = newFriendRequest.toEntity(getMember, findMember.getNickname());
-        friendApproveRepository.save(friendApprove);
+        friendApproveRepository.save(newFriendRequest.toEntity(findMember, getMember.getNickname()));
 
         return new NewFriendResponse("친구 요청 완료");
     }
@@ -72,13 +69,17 @@ public class FriendService {
         return friendRepositoryCustom.showNewFriendRequest(loginMember, pageable);
     }
 
+    /**
+     * TODO
+     * 들어온 친구요청에 대한 리스트 처리성, 테스트 코드 재 작성
+     */
 
     @Transactional
-    public NewFriendResponse newFriendRequestProcess(AuthorizedUser loginMember, NewFriendReqProcessRequest newFriendReqProcessRequest) {
-        Member member = memberRepository.findByLoginId(loginMember.getUsername());
+    public NewFriendResponse newFriendRequestProcess(AuthorizedUser loginMember, NewFriendReqProcessRequest newFriendReqProcessRequest) { // 친규요청에 대한 처리
+        Member member = memberRepository.findByLoginId(loginMember.getUsername()); // 로그인한 사용자
         String message = "";
         FriendApproveEnum isApprove;
-        FriendApprove friendApprove = friendRepositoryCustom.findFriendApprove(newFriendReqProcessRequest.getFriendNickname(), member);
+        FriendApprove friendApprove = friendRepositoryCustom.findFriendApprove(member); // 여기가 문제일수도
         if (newFriendReqProcessRequest.getIsApprove() == FriendApproveEnum.REFUSE) {
             message = "친구 요청을 거절하였습니다.";
             isApprove = FriendApproveEnum.REFUSE;

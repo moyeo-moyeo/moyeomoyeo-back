@@ -31,7 +31,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
         return findMember != null;
     }
 
-    public boolean existsNickname(String nickname) {
+    public boolean existsNickname(String nickname) { // 친구 닉네임 존재 유무
 
         Member findMember = queryFactory
                 .selectFrom(member)
