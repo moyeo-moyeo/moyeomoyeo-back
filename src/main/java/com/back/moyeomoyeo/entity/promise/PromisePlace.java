@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
@@ -15,16 +16,19 @@ public class PromisePlace extends BaseEntity {
     @Column(name = "promisePlaceId")
     private Long id;
 
+    @Column(nullable = false)
     private String placeName; // 장소이름
 
+    @Column(nullable = false)
     private Integer latitude; // 위도
 
-
+    @Column(nullable = false)
     private Integer longitude; // 경도
 
-    private String meetingDate;
+    @Column(nullable = false)
+    private LocalDateTime meetingDate;
 
-    public PromisePlace(String placeName, Integer latitude, Integer longitude, String meetingDate) {
+    public PromisePlace(String placeName, Integer latitude, Integer longitude, LocalDateTime meetingDate) {
         this.placeName = placeName;
         this.latitude = latitude;
         this.longitude = longitude;
