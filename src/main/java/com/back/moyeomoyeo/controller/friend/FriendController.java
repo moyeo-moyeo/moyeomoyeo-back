@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class FriendController {
     private final FriendService friendService;
 
+    // 친구추가
     @PostMapping("/new-friend")
     public ResponseEntity<NewFriendResponse> newFriendRequest(@AuthenticationPrincipal AuthorizedUser authorizedUser, @RequestBody NewFriendRequest newFriendRequest) {
         return new ResponseEntity<>(friendService.newFriendRequest(authorizedUser, newFriendRequest), HttpStatus.OK);

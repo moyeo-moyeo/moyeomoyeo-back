@@ -16,7 +16,7 @@ public class NewFriendReqProcessRequest {
 
     private FriendApproveEnum isApprove;
 
-    public Friend toEntity(Member member, String friendNickname) {
+    public Friend toEntity(Member member, Member friendNickname) {
         return new Friend(member, friendNickname);
     }
 

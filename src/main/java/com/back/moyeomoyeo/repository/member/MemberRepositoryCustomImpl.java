@@ -16,7 +16,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     public boolean existsMemberLoginIdOrNickname(String loginId, String nickname) {
         Member findMember = queryFactory
                 .selectFrom(member)
-                .where(loginIdEq(loginId).or(nicknameEq(nickname)))
+                .where(loginIdEq(loginId).or(member.nickname.eq(nickname)))
                 .fetchFirst();
         return findMember != null;
     }
@@ -31,20 +31,11 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
         return findMember != null;
     }
 
-    public boolean existsNickname(String nickname) { // 친구 닉네임 존재 유무
-
-        Member findMember = queryFactory
-                .selectFrom(member)
-                .where(member.nickname.eq(nickname))
-                .fetchFirst();
-
-        return findMember != null;
-    }
 
     public Member findByNickname(String nickname) {
         return queryFactory
                 .selectFrom(member)
-                .where(nicknameEq(nickname))
+                .where(member.nickname.eq(nickname))
                 .fetchOne();
     }
 
@@ -53,11 +44,5 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
         return loginId != null ? member.loginId.eq(loginId) : null;
     }
 
-    private BooleanExpression usernameEq(String username) {
-        return username != null ? member.username.eq(username) : null;
-    }
 
-    private BooleanExpression nicknameEq(String nickname) {
-        return nickname != null ? member.nickname.eq(nickname) : null;
-    }
 }

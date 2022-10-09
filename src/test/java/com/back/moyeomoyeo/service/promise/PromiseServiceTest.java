@@ -53,11 +53,8 @@ class PromiseServiceTest {
         Member member4 = memberRepository.save(new Member("test4", "1234", "hi", "아으닉네임4", "19981015", "01012341234"));
 
         // 데이터베이스에 친구를 미리 설정
-        friendRepository.save(new NewFriendReqProcessRequest().toEntity(member1, member2.getNickname()));
-        friendRepository.save(new NewFriendReqProcessRequest().toEntity(member2, member1.getNickname()));
-
-        friendRepository.save(new NewFriendReqProcessRequest().toEntity(member1, member3.getNickname()));
-        friendRepository.save(new NewFriendReqProcessRequest().toEntity(member3, member1.getNickname()));
+        friendRepository.save(new NewFriendReqProcessRequest().toEntity(member1, member2));
+        friendRepository.save(new NewFriendReqProcessRequest().toEntity(member1, member3));
 
     }
 

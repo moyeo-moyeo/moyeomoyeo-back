@@ -6,6 +6,7 @@ import com.back.moyeomoyeo.entity.promise.Promise;
 import com.back.moyeomoyeo.entity.promise.PromisePlace;
 import com.back.moyeomoyeo.errorhandle.friend.FriendErrorCode;
 import com.back.moyeomoyeo.errorhandle.friend.FriendErrorException;
+import com.back.moyeomoyeo.repository.friend.FriendRepository;
 import com.back.moyeomoyeo.repository.friend.FriendRepositoryCustom;
 import com.back.moyeomoyeo.repository.member.MemberRepository;
 import com.back.moyeomoyeo.repository.promise.PromisePlaceRepository;
@@ -28,9 +29,11 @@ public class PromiseService {
 
     private final FriendRepositoryCustom friendRepositoryCustom;
 
+    private final FriendRepository friendRepository;
+
     @Transactional
     public String promiseGenerated(AuthorizedUser authorizedUser, PromiseGeneratedRequest promiseGeneratedRequest) {
-        
+
         Member findMember = memberRepository.findByLoginId(authorizedUser.getUsername());
         List<String> friendNicknameList = promiseGeneratedRequest.getFriendNicknameList();
         PromisePlace promisePlace = promiseGeneratedRequest.toEntity();
@@ -38,7 +41,7 @@ public class PromiseService {
 
         String message = findMember.getNickname() + ", ";
         for (int i = 0; i < friendNicknameList.size(); i++) {
-            if (!friendRepositoryCustom.isExistsFriend(findMember, friendNicknameList.get(i))) {
+            if (!friendRepositoryCustom.isExistsFriend(findMember, memberRepository.findByNickname(friendNicknameList.get(i)))) {
                 throw new FriendErrorException(FriendErrorCode.NOT_FRIEND_EXISTS);
             }
         }

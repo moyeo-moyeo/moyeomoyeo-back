@@ -6,14 +6,12 @@ import com.back.moyeomoyeo.entity.friend.friendenum.FriendProcessEnum;
 import com.back.moyeomoyeo.entity.member.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.*;
 
 @Entity
 @NoArgsConstructor
 @Getter
-@ToString
 public class FriendApprove extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +20,7 @@ public class FriendApprove extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
-    private Member member; // 친구 요청을 보낸 사람
+    private Member requestSendMember; // 친구 요청을 보낸 사람
 
     private String requestNickname; // 친구 요청을 받은 사람
 
@@ -33,7 +31,7 @@ public class FriendApprove extends BaseEntity {
     private FriendProcessEnum isProcess;
 
     public FriendApprove(Member member, String requestNickname) {
-        this.member = member;
+        this.requestSendMember = member;
         this.requestNickname = requestNickname;
         this.isApprove = FriendApproveEnum.REQUEST;
         this.isProcess = FriendProcessEnum.WAIT;

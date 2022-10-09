@@ -26,7 +26,7 @@ class MemberRepositoryTest {
                 new Member("hoe", "1234", "hello",
                         "아으닉네임", "19981015", "01012341234"));
         //when
-        boolean isExists = memberRepositoryCustom.existsNickname(nickname);
+        boolean isExists = memberRepository.existsByNickname(nickname);
 
         //then
         assertThat(isExists).isTrue();

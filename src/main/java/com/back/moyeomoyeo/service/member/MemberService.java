@@ -51,7 +51,7 @@ public class MemberService {
     }
 
     public MemberDuplicateResponse isNickname(String nickname) {
-        if (memberRepositoryCustom.existsNickname(nickname)) {
+        if (memberRepository.existsByNickname(nickname)) {
             throw new ErrorException(ErrorCode.DUPLICATE_NICKNAME);
         }
         return new MemberDuplicateResponse("사용 가능한 닉네임입니다.");
@@ -106,9 +106,7 @@ public class MemberService {
 
     public boolean isAuthorizedPassword(String reqPassword) {
         AuthorizedUser authorizedUser = this.sessionUser();
-        if (bCryptPasswordEncoder.matches(reqPassword, authorizedUser.getPassword()))
-            return true;
-        return false;
+        return bCryptPasswordEncoder.matches(reqPassword, authorizedUser.getPassword());
     }
 
 
