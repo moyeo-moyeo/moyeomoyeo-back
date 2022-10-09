@@ -73,7 +73,7 @@ class MemberServiceTest {
     void duplicateNickname() {
         //given
         Member member = newMember().toEntity();
-        given(memberRepositoryCustom.existsNickname(any())).willReturn(true);
+        given(memberRepository.existsByNickname(any())).willReturn(true);
 
 
         //when && then

@@ -4,9 +4,11 @@ import com.back.moyeomoyeo.entity.member.Member;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 import static com.back.moyeomoyeo.entity.member.QMember.member;
 
+@Repository
 @RequiredArgsConstructor
 public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     private final JPAQueryFactory queryFactory;
@@ -14,7 +16,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     public boolean existsMemberLoginIdOrNickname(String loginId, String nickname) {
         Member findMember = queryFactory
                 .selectFrom(member)
-                .where(loginIdEq(loginId).or(nicknameEq(nickname)))
+                .where(loginIdEq(loginId).or(member.nickname.eq(nickname)))
                 .fetchFirst();
         return findMember != null;
     }
@@ -29,20 +31,11 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
         return findMember != null;
     }
 
-    public boolean existsNickname(String nickname) {
-
-        Member findMember = queryFactory
-                .selectFrom(member)
-                .where(member.nickname.eq(nickname))
-                .fetchFirst();
-
-        return findMember != null;
-    }
 
     public Member findByNickname(String nickname) {
         return queryFactory
                 .selectFrom(member)
-                .where(nicknameEq(nickname))
+                .where(member.nickname.eq(nickname))
                 .fetchOne();
     }
 
@@ -51,11 +44,5 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
         return loginId != null ? member.loginId.eq(loginId) : null;
     }
 
-    private BooleanExpression usernameEq(String username) {
-        return username != null ? member.username.eq(username) : null;
-    }
 
-    private BooleanExpression nicknameEq(String nickname) {
-        return nickname != null ? member.nickname.eq(nickname) : null;
-    }
 }

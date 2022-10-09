@@ -7,7 +7,6 @@ public interface MemberRepositoryCustom {
 
     boolean existsLoginId(String loginId);
 
-    boolean existsNickname(String nickname);
 
     Member findByNickname(String nickname);
 }

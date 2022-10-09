@@ -93,9 +93,10 @@ class FriendServiceTest {
         AuthorizedUser loginMember = new AuthorizedUser(member);
 
         //when
-        friendService.newFriendRequest(loginMember, new NewFriendRequest("제2의인생"));
+        NewFriendRequest 제2의인생 = new NewFriendRequest("제2의인생");
+        friendService.newFriendRequest(loginMember, 제2의인생);
         ErrorException errorResponse = assertThrows(ErrorException.class, () ->
-                friendService.newFriendRequest(loginMember, new NewFriendRequest("제2의인생")));
+                friendService.newFriendRequest(loginMember, 제2의인생));
 
         //then
         assertThat(errorResponse.getErrorCode().getMessage()).isEqualTo("이미 친구 요청을 보낸 사용자입니다.");
@@ -112,7 +113,7 @@ class FriendServiceTest {
         memberRepository.save(member);
         memberRepository.save(requestMember);
         AuthorizedUser loginMember = new AuthorizedUser(member);
-        friendRepository.save(new Friend(requestMember, member.getNickname()));
+        friendRepository.save(new Friend(member, requestMember));
 
         //when
         ErrorException errorResponse = assertThrows(ErrorException.class, () ->
@@ -136,7 +137,7 @@ class FriendServiceTest {
 
         //when
         NewFriendResponse friendRequestResponse = friendService.newFriendRequest(loginMember, new NewFriendRequest("제2의 인생"));
-        FriendApprove friendRequest = friendApproveRepository.findByRequestNickname(member.getNickname());
+        FriendApprove friendRequest = friendApproveRepository.findByRequestNickname(requestMember.getNickname());
         //then
         assertThat(friendRequestResponse.getMessage()).isEqualTo("친구 요청 완료");
         assertThat(friendRequest.getIsApprove()).isEqualTo(FriendApproveEnum.REQUEST);
@@ -157,11 +158,16 @@ class FriendServiceTest {
         AuthorizedUser requestSendLoginMember = new AuthorizedUser(member);
         friendService.newFriendRequest(requestSendLoginMember, new NewFriendRequest(requestMember.getNickname()));
 
+        List<FriendApprove> all = friendApproveRepository.findAll();
+        for (FriendApprove friendApprove : all) {
+            System.out.println("friendApprove = " + friendApprove);
+        }
+
         //when
         AuthorizedUser requestGetLoginMember = new AuthorizedUser(requestMember);
         NewFriendResponse newFriendResponse = friendService.newFriendRequestProcess(requestGetLoginMember,
-                new NewFriendReqProcessRequest(requestSendLoginMember.getMember().getNickname(), FriendApproveEnum.REFUSE));
-        FriendApprove friendRequest = friendApproveRepository.findByRequestNickname(member.getNickname());
+                new NewFriendReqProcessRequest(member.getNickname(), FriendApproveEnum.REFUSE));
+        FriendApprove friendRequest = friendApproveRepository.findByRequestNickname(requestMember.getNickname());
 
         //then
         assertThat(newFriendResponse.getMessage()).isEqualTo("친구 요청을 거절하였습니다.");
@@ -171,7 +177,7 @@ class FriendServiceTest {
     }
 
     @Test
-    void 친구요청_받은사용자가_친구요청을_거절하면_친구_요청을_수락하였습니다_응답() {
+    void 친구요청_받은사용자가_친구요청을_수락하면_친구_요청을_수락하였습니다_응답() {
         Member member = new Member("test", "1234", "hoe",
                 "아으닉네임", "981015", "01012341234");
         Member requestMember = new Member("test12", "1234", "hi",
@@ -185,7 +191,7 @@ class FriendServiceTest {
         AuthorizedUser requestGetLoginMember = new AuthorizedUser(requestMember);
         NewFriendResponse newFriendResponse = friendService.newFriendRequestProcess(requestGetLoginMember,
                 new NewFriendReqProcessRequest(requestSendLoginMember.getMember().getNickname(), FriendApproveEnum.AGREE));
-        FriendApprove friendRequest = friendApproveRepository.findByRequestNickname(member.getNickname());
+        FriendApprove friendRequest = friendApproveRepository.findByRequestNickname(requestMember.getNickname());
         //then
         assertThat(newFriendResponse.getMessage()).isEqualTo("친구 요청을 수락하였습니다.");
         assertThat(friendRequest.getIsApprove()).isEqualTo(FriendApproveEnum.AGREE);
@@ -219,15 +225,15 @@ class FriendServiceTest {
 
 
         //when
-        PageRequest pageable = PageRequest.of(1, 2);
+        PageRequest pageable = PageRequest.of(0, 2);
         Page<NewFriendIsRequestResponse> newFriendRequest = friendService.getNewFriendRequest(requestGetLoginMember, pageable);
         List<NewFriendIsRequestResponse> content = newFriendRequest.getContent();
         NewFriendIsRequestResponse newFriendIsRequestResponse1 = content.get(0);
         NewFriendIsRequestResponse newFriendIsRequestResponse2 = content.get(1);
         //then
         assertThat(content.size()).isEqualTo(2);
-        assertThat(newFriendIsRequestResponse1.getRequestMember()).isEqualTo(member2.getNickname());
-        assertThat(newFriendIsRequestResponse2.getRequestMember()).isEqualTo(member3.getNickname());
+        assertThat(newFriendIsRequestResponse1.getRequestMember()).isEqualTo(member1.getNickname());
+        assertThat(newFriendIsRequestResponse2.getRequestMember()).isEqualTo(member1.getNickname());
     }
 
 }

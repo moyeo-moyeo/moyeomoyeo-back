@@ -31,43 +31,46 @@ public class FriendRepositoryCustom {
     public Page<NewFriendIsRequestResponse> showNewFriendRequest(Member loginMember, Pageable pageable) {
 
         QueryResults<NewFriendIsRequestResponse> result = queryFactory
-                .select(new QNewFriendIsRequestResponse(friendApprove.requestNickname
+                .select(new QNewFriendIsRequestResponse(member.nickname
                         , friendApprove.isApprove,
                         friendApprove.isProcess))
                 .from(friendApprove)
-                .join(friendApprove.member, member)
-                .where(memberEq(loginMember))
+                .join(friendApprove.requestSendMember, member)
+                .where(requestNicknameEq(loginMember.getNickname()))
                 .fetchResults();
         return new PageImpl<>(result.getResults(), pageable, result.getTotal());
     }
 
-    public Boolean isRequest(String nickname, Member member) {
+    public Boolean isRequest(String friendNickname, Member loginMember) {
         FriendApprove fa = queryFactory
                 .selectFrom(friendApprove)
-                .where(requestNicknameEq(nickname),
-                        memberEq(member),
-                        friendApprove.isApprove.eq(FriendApproveEnum.REQUEST)
-                        , friendApprove.isProcess.eq(FriendProcessEnum.WAIT))
+                .where(
+                        friendApprove.requestSendMember.eq(loginMember)
+                                .and(friendApprove.requestNickname.eq(friendNickname)
+                                        .and(friendApprove.isApprove.eq(FriendApproveEnum.REQUEST))
+                                        .and(friendApprove.isProcess.eq(FriendProcessEnum.WAIT)))
+                )
                 .fetchFirst();
 
         return fa != null;
     }
 
 
-    public FriendApprove findFriendApprove(String nickname, Member requestMember) {
+    public FriendApprove findFriendApprove(Member requestMember, Member requestSendMember) {
         return queryFactory
                 .selectFrom(friendApprove)
-                .where(requestNicknameEq(nickname),
-                        memberEq(requestMember))
+                .where(requestNicknameEq(requestMember.getNickname())
+                        , friendApprove.requestSendMember.eq(requestSendMember))
                 .fetchFirst();
     }
 
 
-    public Boolean isDuplicateFriend(String friendNickname, Member requestSendMemberNickname) {
+    public Boolean isDuplicateFriend(Member friendMember, Member mySelfMember) {
         Friend findFriend = queryFactory
                 .selectFrom(friend)
-                .where(friend.requestGetMember.eq(requestSendMemberNickname),
-                        friend.requestSendMemberNickname.eq(friendNickname))
+                .where(friend.mySelfMember.eq(mySelfMember)
+                        .and(friend.friendMember.eq(friendMember)
+                        ))
                 .fetchFirst();
         return findFriend != null;
     }
@@ -75,7 +78,7 @@ public class FriendRepositoryCustom {
     public Slice<FriendListResponse> friends(Pageable pageable, Member member) {
         QueryResults<Friend> result = queryFactory
                 .selectFrom(friend)
-                .where(friend.requestGetMember.eq(member))
+                .where(friend.mySelfMember.eq(member))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetchResults();
@@ -83,7 +86,7 @@ public class FriendRepositoryCustom {
 
         List<FriendListResponse> content = new ArrayList<>();
         for (Friend friends : result.getResults()) {
-            content.add(new FriendListResponse(friends.getId(), friends.getRequestSendMemberNickname()));
+            content.add(new FriendListResponse(friends.getId(), friends.getFriendMember().getNickname()));
         }
         boolean hasNext = false;
         if (content.size() > pageable.getPageSize()) {
@@ -94,10 +97,17 @@ public class FriendRepositoryCustom {
         return new SliceImpl<>(content, pageable, hasNext);
     }
 
+    public boolean isExistsFriend(Member loginMember, Member friendMember) {
+        return queryFactory
+                .select(friend)
+                .from(friend)
+                .where(friend.mySelfMember.eq(loginMember),
+                        friend.friendMember.eq(friendMember))
+                .fetchFirst() != null;
 
-    public BooleanExpression memberEq(Member member) {
-        return member != null ? friendApprove.member.eq(member) : null;
+
     }
+
 
     public BooleanExpression requestNicknameEq(String requestFriendNickname) {
         return requestFriendNickname != null ? friendApprove.requestNickname.eq(requestFriendNickname) : null;

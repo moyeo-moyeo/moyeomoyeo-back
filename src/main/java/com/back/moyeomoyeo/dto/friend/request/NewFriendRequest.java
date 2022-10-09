@@ -13,7 +13,7 @@ public class NewFriendRequest {
     private String friendNickname;
 
 
-    public FriendApprove toEntity(Member member, String nickname) {
-        return new FriendApprove(member, nickname);
+    public FriendApprove toEntity(Member member, String friendNickname) {
+        return new FriendApprove(member, friendNickname);
     }
 }

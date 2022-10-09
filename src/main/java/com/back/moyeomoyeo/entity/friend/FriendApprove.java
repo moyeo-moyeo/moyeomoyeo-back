@@ -20,9 +20,9 @@ public class FriendApprove extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
-    private Member member;
+    private Member requestSendMember; // 친구 요청을 보낸 사람
 
-    private String requestNickname;
+    private String requestNickname; // 친구 요청을 받은 사람
 
     @Enumerated(EnumType.STRING)
     private FriendApproveEnum isApprove;
@@ -31,7 +31,7 @@ public class FriendApprove extends BaseEntity {
     private FriendProcessEnum isProcess;
 
     public FriendApprove(Member member, String requestNickname) {
-        this.member = member;
+        this.requestSendMember = member;
         this.requestNickname = requestNickname;
         this.isApprove = FriendApproveEnum.REQUEST;
         this.isProcess = FriendProcessEnum.WAIT;
